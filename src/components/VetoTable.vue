@@ -109,9 +109,8 @@ export default {
   methods: {
     async useStreamOrStaticData() {
       // Template will contain v-rows/etc like on main Team page.
-      let matchData = await this.GetMatchData(this.match_id);
-      if (matchData.end_time == null) this.getStreamedVetoInfo();
-      else this.getVetoInfo();
+      await this.GetMatchData(this.match_id);
+      this.getVetoInfo();
     },
     async getStreamedVetoInfo() {
       try {
