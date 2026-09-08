@@ -78,14 +78,9 @@
 </template>
 
 <script>
-let vetoInformation;
-let vetoSideInformation;
 export default {
   props: {
     match_id: Number
-  },
-  sse: {
-    cleanup: true
   },
   data() {
     return {
@@ -111,59 +106,6 @@ export default {
       // Template will contain v-rows/etc like on main Team page.
       await this.GetMatchData(this.match_id);
       this.getVetoInfo();
-    },
-    async getStreamedVetoInfo() {
-      try {
-        vetoInformation = await this.GetStreamedVetoesOfMatch(this.match_id);
-        vetoSideInformation = await this.GetStreamedVetoSidesOfMatch(
-          this.match_id
-        );
-        // Remove the -1 value.
-        this.vetoInfo.pop();
-        await vetoInformation.on("vetodata", this.handleVetoInfo).connect();
-        await vetoSideInformation
-          .on("vetosidedata", this.handleLiveSideInfo)
-          .connect();
-      } catch (err) {
-        console.error(`Error on SSE ${err}`);
-      }
-    },
-    async handleVetoInfo(liveVetoInfo) {
-      await liveVetoInfo.forEach(vetoData => {
-        let isFound = this.vetoInfo.find(tmp => {
-          return tmp["id"] === vetoData.id;
-        });
-        if (!isFound) {
-          this.vetoInfo.push({
-            id: vetoData.id,
-            match_id: vetoData.match_id,
-            team_name: vetoData.team_name,
-            map: vetoData.map,
-            pick_or_veto: vetoData.pick_or_veto
-          });
-        }
-      });
-      // Update veto information here.
-      let mapStatRes = await this.GetMapStats(this.match_id);
-      if (typeof mapStatRes != "string") this.mapStats = mapStatRes;
-    },
-    async handleLiveSideInfo(liveSideInfo) {
-      await liveSideInfo.forEach(liveVetoData => {
-        this.vetoInfo.forEach((vetoData, idx) => {
-          if (liveVetoData["veto_id"] === vetoData["id"]) {
-            this.vetoInfo.splice(idx, 1);
-            this.vetoInfo.push({
-              id: vetoData.id,
-              match_id: vetoData.match_id,
-              team_name: vetoData.team_name,
-              map: vetoData.map,
-              pick_or_veto: vetoData.pick_or_veto,
-              team_name_side: liveVetoData.team_name,
-              side: liveVetoData.side
-            });
-          }
-        });
-      });
     },
     async getVetoInfo() {
       try {

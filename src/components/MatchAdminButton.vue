@@ -636,7 +636,7 @@ export default {
         let backupRes;
         let backupObject = [
           {
-            backup_name: this.selectedBackup
+            backup_name: this.selectedBackup.trim().split(/\s+/)[0]
           }
         ];
         backupRes = await this.RestoreFromBackup(
@@ -663,7 +663,7 @@ export default {
         let backupObject = [
           {
             server_id: this.selectedServer,
-            backup_file: this.selectedBackup
+            backup_file: this.selectedBackup.trim().split(/\s+/)[0]
           }
         ];
         serverRes = await this.UpdateMatchInfo(matchObject);

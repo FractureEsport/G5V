@@ -361,25 +361,6 @@ export default {
       }
       return message;
     },
-    async GetEventMatchData(matchid) {
-      let retVal;
-      try {
-        retVal = this.$sse
-          .create({
-            url: `${process.env?.VUE_APP_G5V_API_URL ||
-              "/api"}/matches/${matchid}/stream`,
-            format: "json",
-            withCredentials: true,
-            polyfill: true
-          })
-          .on("error", err =>
-            console.error("Failed to parse or lost connection:", err)
-          );
-      } catch (error) {
-        retVal = error.response.data.message;
-      }
-      return retVal;
-    },
     async GetRecentMatches(teamid) {
       let res;
       let message;
@@ -824,19 +805,6 @@ export default {
       }
       return message;
     },
-    async GetEventPlayerStats(matchid) {
-      return this.$sse
-        .create({
-          url: `${process.env?.VUE_APP_G5V_API_URL ||
-            "/api"}/playerstats/match/${matchid}/stream`,
-          format: "json",
-          withCredentials: true,
-          polyfill: true
-        })
-        .on("error", err =>
-          console.error("Failed to parse or lost connection:", err)
-        );
-    },
     async GetPlayerStatRecentMatches(steamid) {
       let res;
       let message;
@@ -893,19 +861,6 @@ export default {
         message = error.response.data.message;
       }
       return message;
-    },
-    async GetEventMapStats(matchid) {
-      return this.$sse
-        .create({
-          url: `${process.env?.VUE_APP_G5V_API_URL ||
-            "/api"}/mapstats/${matchid}/stream`,
-          format: "json",
-          withCredentials: true,
-          polyfill: true
-        })
-        .on("error", err =>
-          console.error("Failed to parse or lost connection:", err)
-        );
     },
     // END MAP STATS
     // BEGIN MATCH ADMIN CALLS
@@ -1142,40 +1097,6 @@ export default {
         combinedVetoInfo = error.response.data.message;
       }
       return combinedVetoInfo;
-    },
-    async GetStreamedVetoesOfMatch(matchid) {
-      let combinedVetoInfo;
-      try {
-        combinedVetoInfo = await this.$sse
-          .create({
-            url: `${process.env?.VUE_APP_G5V_API_URL ||
-              "/api"}/vetoes/${matchid}/stream`,
-            format: "json",
-            withCredentials: true,
-            polyfill: true
-          })
-          .on("error", err =>
-            console.error("Failed to parse or lost connection:", err)
-          );
-      } catch (error) {
-        combinedVetoInfo = error.response.data.message;
-      }
-      return combinedVetoInfo;
-    },
-    async GetStreamedVetoSidesOfMatch(matchid) {
-      let retVal;
-      try {
-        retVal = await this.$sse.create({
-          url: `${process.env?.VUE_APP_G5V_API_URL ||
-            "/api"}/vetosides/${matchid}/stream`,
-          format: "json",
-          withCredentials: true,
-          polyfill: true
-        });
-      } catch (error) {
-        retVal = error.response.data.message;
-      }
-      return retVal;
     },
     // END VETO CALLS
     // BEGIN LEADERBOARD CALLS
