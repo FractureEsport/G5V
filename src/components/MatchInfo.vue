@@ -194,27 +194,7 @@ export default {
   },
   methods: {
     async checkIfMatchLive() {
-      //await this.getStreamedMatchInfo();
       await this.getMatchInfo();
-    },
-    async getStreamedMatchInfo() {
-      try {
-        let sseClient = await this.GetEventMatchData(this.match_id);
-        await sseClient.connect();
-        await sseClient.on("matches", async message => {
-          try {
-            await this.retrieveMatchInfoHelper(message);
-          } catch (error) {
-            console.error(
-              "Error retrieving information from matches event stream. ",
-              error
-            );
-          }
-        });
-        return;
-      } catch (ignored) {
-        return;
-      }
     },
     async getMatchInfo() {
       try {

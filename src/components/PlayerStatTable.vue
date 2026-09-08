@@ -307,38 +307,10 @@ export default {
       });
       if (matchData.end_time != null) this.isFinished = true;
     },
-    async GetMapPlayerStatsStream(matchData) {
-      try {
-        let sseClient = await this.GetEventPlayerStats(this.match_id);
-        await sseClient.connect();
-        await sseClient.on("playerstats", async message => {
-          await this.retrieveStatsHelper(message, matchData);
-        });
-      } catch (error) {
-        console.log("Our error: " + error);
-      } finally {
-        this.isLoading = false;
-      }
-      return;
-    },
     async GetMapPlayerStats(matchData) {
       try {
         let res = await this.GetPlayerStats(this.match_id);
         await this.retrieveStatsHelper(res, matchData);
-      } catch (error) {
-        console.log("Our error: " + error);
-      } finally {
-        this.isLoading = false;
-      }
-      return;
-    },
-    async GetMapStatsStream(matchData) {
-      try {
-        let sseClient = await this.GetEventMapStats(this.match_id);
-        await sseClient.connect();
-        await sseClient.on("mapstats", async message => {
-          await this.retrieveMapStatsHelper(message,matchData);
-        });
       } catch (error) {
         console.log("Our error: " + error);
       } finally {
