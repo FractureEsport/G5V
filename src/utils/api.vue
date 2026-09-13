@@ -1356,6 +1356,50 @@ export default {
         "ZA"
       ];
     },
+    async GetCastStream() {
+      let retVal;
+      try {
+        retVal = this.$sse
+          .create({
+            url: `${process.env?.VUE_APP_G5V_API_URL ||
+              "/api"}/matches/cast/stream`,
+            format: "json",
+            withCredentials: true,
+            polyfill: true
+          })
+          .on("error", error => console.error("Cast SSE error:", error));
+      } catch (error) {
+        retVal = null;
+      }
+      return retVal;
+    },
+    // OBS SLOTS - stable links a caster can reassign to any match.
+    async GetObsSlots() {
+      const res = await this.axioCall.get(
+        `${process.env?.VUE_APP_G5V_API_URL || "/api"}/obs-slots`
+      );
+      return res.data.slots || [];
+    },
+    async CreateObsSlot(label) {
+      const res = await this.axioCall.post(
+        `${process.env?.VUE_APP_G5V_API_URL || "/api"}/obs-slots`,
+        { label }
+      );
+      return res.data.slot;
+    },
+    async UpdateObsSlot(slotId, payload) {
+      const res = await this.axioCall.put(
+        `${process.env?.VUE_APP_G5V_API_URL || "/api"}/obs-slots/${slotId}`,
+        payload
+      );
+      return res.data.slot;
+    },
+    async DeleteObsSlot(slotId) {
+      const res = await this.axioCall.delete(
+        `${process.env?.VUE_APP_G5V_API_URL || "/api"}/obs-slots/${slotId}`
+      );
+      return res.data;
+    },
     GetRating: function(
       kills = 0,
       roundsplayed = 0,

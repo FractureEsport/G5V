@@ -16,6 +16,8 @@
       "DarkMode": "Toggle Dark Mode",
       "PlayerLeader": "Player Leaderboard",
       "PlayerStats": "Player Statistics",
+      "Cast": "Cast / Observer",
+      "ObsSlots": "OBS Slots",
       "Home": "Home"
     },
     "Login": {
@@ -137,6 +139,43 @@
       "BlindKills": "Blind Kills",
       "SmokeKills": "Smoke Kills",
       "NoScope": "No Scope"
+    },
+    "Cast": {
+      "Title": "Cast / Observer",
+      "AccessDenied": "Access reserved to users with the Cast or Admin role.",
+      "Connected": "Connected",
+      "Disconnected": "Disconnected",
+      "ActiveMatches": "Active Matches",
+      "FinishedMatches": "Finished Matches",
+      "NoActiveMatches": "No active matches",
+      "NoFinishedMatches": "No finished matches",
+      "Series": "Series",
+      "Connection": "Connection",
+      "Server": "Server",
+      "TV90": "TV 90s",
+      "TV0": "TV 0s",
+      "EventFeed": "Event Feed",
+      "NoEvents": "No events",
+      "EventMatchCreated": "Match #{id} created: {team1} vs {team2}",
+      "EventMapEnd": "{map} finished: {team1} {score1} - {score2} {team2}",
+      "EventMatchEnd": "Match finished: {team1} {score1} - {score2} {team2}",
+      "CopySuccess": "Command copied: {text}",
+      "CopyFailed": "Copy failed",
+      "ObsSlotsTitle": "OBS Slots",
+      "ObsSlotsHint": "Stable overlay links you can reassign to any match without changing your OBS scene.",
+      "NewSlot": "New Slot",
+      "SlotLabel": "Label",
+      "SlotUrl": "Overlay URL",
+      "AssignMatch": "Assign Match",
+      "NoMatch": "No match assigned",
+      "CopyLink": "Copy Link",
+      "LinkCopied": "Link copied to clipboard"
+    },
+    "OverlayLive": {
+      "NoMatch": "No live match",
+      "Series": "Series",
+      "PlayerBadge": "Player",
+      "TeamBadge": "Team"
     },
     "PlayerStats": {
       "Kills": "Kills",
@@ -408,6 +447,8 @@
       "DarkMode": "Action le mode sombre",
       "PlayerLeader": "Classement des joueurs",
       "PlayerStats": "Statistiques des joueurs",
+      "Cast": "Cast / Observateur",
+      "ObsSlots": "Slots OBS",
       "Home": "Accueil"
     },
     "Login": {
@@ -529,6 +570,43 @@
       "BlindKills": "Kills aveugle",
       "SmokeKills": "Kills à travers la fumée",
       "NoScope": "No Scope"
+    },
+    "Cast": {
+      "Title": "Cast / Observateur",
+      "AccessDenied": "Accès réservé aux utilisateurs avec le rôle Cast ou Admin.",
+      "Connected": "Connecté",
+      "Disconnected": "Déconnecté",
+      "ActiveMatches": "Matchs en cours",
+      "FinishedMatches": "Matchs terminés",
+      "NoActiveMatches": "Aucun match en cours",
+      "NoFinishedMatches": "Aucun match terminé",
+      "Series": "Série",
+      "Connection": "Connexion",
+      "Server": "Serveur",
+      "TV90": "TV 90s",
+      "TV0": "TV 0s",
+      "EventFeed": "Flux d'événements",
+      "NoEvents": "Aucun événement",
+      "EventMatchCreated": "Match #{id} créé : {team1} vs {team2}",
+      "EventMapEnd": "{map} terminée : {team1} {score1} - {score2} {team2}",
+      "EventMatchEnd": "Match terminé : {team1} {score1} - {score2} {team2}",
+      "CopySuccess": "Commande copiée : {text}",
+      "CopyFailed": "Échec de la copie",
+      "ObsSlotsTitle": "Slots OBS",
+      "ObsSlotsHint": "Liens d'overlay stables que vous pouvez réassigner à n'importe quel match sans changer votre scène OBS.",
+      "NewSlot": "Nouveau slot",
+      "SlotLabel": "Libellé",
+      "SlotUrl": "URL de l'overlay",
+      "AssignMatch": "Assigner un match",
+      "NoMatch": "Aucun match assigné",
+      "CopyLink": "Copier le lien",
+      "LinkCopied": "Lien copié dans le presse-papiers"
+    },
+    "OverlayLive": {
+      "NoMatch": "Aucun match en direct",
+      "Series": "Série",
+      "PlayerBadge": "Joueur",
+      "TeamBadge": "Équipe"
     },
     "PlayerStats": {
       "Kills": "Kills",
@@ -800,6 +878,8 @@
       "DarkMode": "ダークモードを切り替えます",
       "PlayerLeader": "プレイヤーリーダーボード",
       "PlayerStats": "プレイヤー統計",
+      "Cast": "キャスト/観戦",
+      "ObsSlots": "OBSスロット",
       "Home": "ホーム"
     },
     "Login": {
