@@ -12,10 +12,10 @@
     >
       <template v-slot:item.map="{ item }">
         <b v-if="item.pick_or_veto === 'pick'">
-          {{ item.map }}
+          {{ mapDisplayName(item.map) }}
         </b>
         <div v-else>
-          {{ item.map }}
+          {{ mapDisplayName(item.map) }}
         </div>
       </template>
       <template v-slot:item.pick_or_veto="{ item }">
@@ -78,6 +78,7 @@
 </template>
 
 <script>
+import { getMapDisplayName } from "../utils/mapNames";
 export default {
   props: {
     match_id: Number
@@ -102,6 +103,9 @@ export default {
     this.useStreamOrStaticData();
   },
   methods: {
+    mapDisplayName(mapId) {
+      return getMapDisplayName(mapId);
+    },
     async useStreamOrStaticData() {
       // Template will contain v-rows/etc like on main Team page.
       await this.GetMatchData(this.match_id);

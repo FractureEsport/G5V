@@ -105,6 +105,7 @@
 </template>
 
 <script>
+import { getMapDisplayName } from "../utils/mapNames";
 export default {
   props: {
     match_id: Number
@@ -349,7 +350,7 @@ export default {
         this.$set(this.mapStats[index], 'end', singleMapStat.end_time == null ?
           null :
           "Map End: " + new Date(singleMapStat.end_time).toLocaleString());
-        this.$set(this.mapStats[index], 'map', "Map: " + singleMapStat.map_name);
+        this.$set(this.mapStats[index], 'map', "Map: " + getMapDisplayName(singleMapStat.map_name));
         this.$set(this.mapStats[index], 'demo', singleMapStat.demoFile);
       });
       if (matchData.end_time != null) this.isFinished = true;
