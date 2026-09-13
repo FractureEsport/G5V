@@ -15,6 +15,7 @@
       "Logout": "Logout",
       "DarkMode": "Toggle Dark Mode",
       "PlayerLeader": "Player Leaderboard",
+      "PlayerStats": "Player Statistics",
       "Home": "Home"
     },
     "Login": {
@@ -114,6 +115,28 @@
       "MapSidesTeam2CT": "Team 2 Starts CT",
       "MapSidesKnife": "Teams Knife For Sides",
       "Wingman": "Wingman Match?"
+    },
+    "GlobalStats": {
+      "Title": "Global Statistics",
+      "Maps": "Maps Played",
+      "Rounds": "Rounds",
+      "Map": "Map",
+      "GlobalStats": "Global Statistics",
+      "MapStats": "Map Statistics",
+      "WeaponStats": "Weapon Statistics",
+      "Weapon": "Weapon",
+      "ProfilePage": "Player Profile",
+      "MultiKills": "Multi-Kills",
+      "Clutches": "Clutches",
+      "OtherStats": "Other Statistics",
+      "FirstKillCT": "First Kill CT",
+      "FirstKillT": "First Kill T",
+      "FirstDeathCT": "First Death CT",
+      "RecentMatches": "Recent Matches",
+      "HSKills": "HS Kills",
+      "BlindKills": "Blind Kills",
+      "SmokeKills": "Smoke Kills",
+      "NoScope": "No Scope"
     },
     "PlayerStats": {
       "Kills": "Kills",
@@ -384,6 +407,7 @@
       "Logout": "Déconnexion",
       "DarkMode": "Action le mode sombre",
       "PlayerLeader": "Classement des joueurs",
+      "PlayerStats": "Statistiques des joueurs",
       "Home": "Accueil"
     },
     "Login": {
@@ -483,6 +507,28 @@
       "MapSidesTeam2CT": "Equipe 2 démarre en CT",
       "MapSidesKnife": "Coté décidé par un round au couteau",
       "Wingman": "Match d'ailier ?"
+    },
+    "GlobalStats": {
+      "Title": "Statistiques globales",
+      "Maps": "Cartes jouées",
+      "Rounds": "Rounds",
+      "Map": "Carte",
+      "GlobalStats": "Statistiques globales",
+      "MapStats": "Statistiques par carte",
+      "WeaponStats": "Statistiques par arme",
+      "Weapon": "Arme",
+      "ProfilePage": "Profil du joueur",
+      "MultiKills": "Multi-kills",
+      "Clutches": "Clutches",
+      "OtherStats": "Autres statistiques",
+      "FirstKillCT": "Premier kill CT",
+      "FirstKillT": "Premier kill T",
+      "FirstDeathCT": "Première mort CT",
+      "RecentMatches": "Matchs récents",
+      "HSKills": "Kills HS",
+      "BlindKills": "Kills aveugle",
+      "SmokeKills": "Kills à travers la fumée",
+      "NoScope": "No Scope"
     },
     "PlayerStats": {
       "Kills": "Kills",
@@ -753,6 +799,7 @@
       "Logout": "ログアウト",
       "DarkMode": "ダークモードを切り替えます",
       "PlayerLeader": "プレイヤーリーダーボード",
+      "PlayerStats": "プレイヤー統計",
       "Home": "ホーム"
     },
     "Login": {
@@ -848,6 +895,28 @@
       "KnifeNever": "ネバーナイフ",
       "KnifeAlways": "常にナイフ",
       "Wingman": "ウィングマン・マッチ？"
+    },
+    "GlobalStats": {
+      "Title": "グローバル統計",
+      "Maps": "プレイしたマップ",
+      "Rounds": "ラウンド",
+      "Map": "マップ",
+      "GlobalStats": "グローバル統計",
+      "MapStats": "マップ統計",
+      "WeaponStats": "武器統計",
+      "Weapon": "武器",
+      "ProfilePage": "プレイヤープロフィール",
+      "MultiKills": "マルチキル",
+      "Clutches": "クラッチ",
+      "OtherStats": "その他の統計",
+      "FirstKillCT": "ファーストキル (CT)",
+      "FirstKillT": "ファーストキル (T)",
+      "FirstDeathCT": "ファーストデス (CT)",
+      "RecentMatches": "最近のマッチ",
+      "HSKills": "HSキル",
+      "BlindKills": "フラッシュキル",
+      "SmokeKills": "スモークキル",
+      "NoScope": "ノースコープ"
     },
     "PlayerStats": {
       "Kills": "キルズ",

@@ -109,6 +109,12 @@
               {{ $t("Navbar.PlayerLeader") }}
             </v-list-item-title>
           </v-list-item>
+
+          <v-list-item :to="'/stats'">
+            <v-list-item-title>
+              {{ $t("Navbar.PlayerStats") }}
+            </v-list-item-title>
+          </v-list-item>
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
