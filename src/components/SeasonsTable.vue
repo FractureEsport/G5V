@@ -18,14 +18,14 @@
           <v-btn
             color="primary"
             @click="newDialog = true"
-            v-if="user.id != null"
+            v-if="user.id != null && user.admin != 1"
           >
             {{ $t("Seasons.New") }}
           </v-btn>
           <v-btn
             color="secondary"
             @click="newImportDialog = true"
-            v-if="user.id != null"
+            v-if="user.id != null && user.admin != 1"
           >
             {{ $t("Seasons.ImportSeason") }}
           </v-btn>
@@ -52,7 +52,8 @@
       <template v-slot:item.actions="{ item }">
         <div
           v-if="
-            user.super_admin == 1 || user.admin == 1 || item.user_id == user.id
+            user.super_admin == 1 ||
+              (item.user_id == user.id && user.admin != 1)
           "
         >
           <v-icon @click="deleteSelectedSeason(item)">

@@ -39,7 +39,7 @@
       <v-skeleton-loader type="table" />
     </div>
 
-    <v-alert v-else-if="mapStats.length === 0" type="info">
+    <v-alert v-else-if="rawStats.length === 0" type="info">
       {{ $t("PlayerStats.NoPlayerStatFound") }}
     </v-alert>
 
@@ -47,6 +47,19 @@
       <v-card-title class="primary white--text">
         <v-icon left dark>mdi-map</v-icon>
         {{ $t("GlobalStats.MapStats") }}
+        <v-spacer />
+        <v-select
+          v-if="seasonOptions.length > 0"
+          v-model="selectedSeasonId"
+          :items="seasonSelectItems"
+          item-text="text"
+          item-value="value"
+          dense
+          hide-details
+          filled
+          dark
+          style="max-width: 260px"
+        />
       </v-card-title>
 
       <!-- Per-map summary cards -->
@@ -123,6 +136,15 @@ export default {
       // steam id -> technical map id, keyed by the map_stats row id since
       // player_stats only stores map_id (the map_stats.id foreign key).
       mapIdLookup: {},
+      // Custom display names (typically for Workshop maps), merged from every
+      // season any of this player's matches belongs to.
+      seasonMapNames: {},
+      // match_id -> season_id, so stats can be filtered down to one season.
+      matchSeasonById: {},
+      // { id, name } entries for every season any of this player's matches
+      // belongs to, used to populate the season filter dropdown.
+      seasonOptions: [],
+      selectedSeasonId: null,
       isLoading: true
     };
   },
@@ -133,18 +155,50 @@ export default {
       if (!Array.isArray(res)) return;
       this.rawStats = res;
 
-      // Fetch map names for each unique match_id
+      // Fetch map names and season id for each unique match_id
       const matchIds = [...new Set(res.map(s => s.match_id))];
+      const seasonIds = new Set();
       await Promise.all(
         matchIds.map(async matchId => {
-          const maps = await this.GetMapStats(matchId);
+          const [maps, matchData] = await Promise.all([
+            this.GetMapStats(matchId),
+            this.GetMatchData(matchId)
+          ]);
           if (Array.isArray(maps)) {
             maps.forEach(m => {
               this.$set(this.mapIdLookup, m.id, m.map_name);
             });
           }
+          if (matchData && matchData.season_id) {
+            this.$set(this.matchSeasonById, matchId, matchData.season_id);
+            seasonIds.add(matchData.season_id);
+          }
         })
       );
+
+      await Promise.all(
+        [...seasonIds].map(async seasonId => {
+          try {
+            const [cvars, seasonInfo] = await Promise.all([
+              this.GetSeasonCVARs(seasonId),
+              this.GetSeasonInfo(seasonId)
+            ]);
+            if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
+              // Reassign (not mutate) so Vue 2 picks up the new keys.
+              this.seasonMapNames = {
+                ...this.seasonMapNames,
+                ...JSON.parse(cvars.map_pool_names)
+              };
+            }
+            if (seasonInfo && seasonInfo.name) {
+              this.seasonOptions.push({ id: seasonId, name: seasonInfo.name });
+            }
+          } catch (error) {
+            // Ignore - this season just won't have custom names/filter resolved.
+          }
+        })
+      );
+      this.seasonOptions.sort((a, b) => a.name.localeCompare(b.name));
     } catch (error) {
       console.log(error);
     } finally {
@@ -159,9 +213,21 @@ export default {
       if (this.rawStats.length > 0) return this.rawStats[0].name;
       return this.$route.params.steam_id;
     },
+    seasonSelectItems() {
+      return [
+        { value: null, text: this.$t("PlayerStats.AllSeasons") },
+        ...this.seasonOptions.map(s => ({ value: s.id, text: s.name }))
+      ];
+    },
+    filteredStats() {
+      if (this.selectedSeasonId == null) return this.rawStats;
+      return this.rawStats.filter(
+        s => this.matchSeasonById[s.match_id] === this.selectedSeasonId
+      );
+    },
     mapStats() {
       const grouped = {};
-      this.rawStats.forEach(s => {
+      this.filteredStats.forEach(s => {
         const mapId = this.mapIdLookup[s.map_id] || `map_${s.map_id}`;
         if (!grouped[mapId]) {
           grouped[mapId] = {
@@ -214,7 +280,7 @@ export default {
 
       return Object.values(grouped).map(g => ({
         map_name: g.map_id,
-        map_display_name: getMapDisplayName(g.map_id),
+        map_display_name: getMapDisplayName(g.map_id, this.seasonMapNames),
         maps: g.maps,
         kills: g.kills,
         deaths: g.deaths,
