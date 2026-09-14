@@ -243,7 +243,7 @@
                       map:
                         newMatchData.map_pool[index] == null
                           ? entity
-                          : newMatchData.map_pool[index]
+                          : mapDisplayName(newMatchData.map_pool[index])
                     })
                   }}
                 </v-col>
@@ -547,6 +547,9 @@ export default {
     this.MapList = await this.GetUserEnabledMapList(this.user.id);
   },
   methods: {
+    mapDisplayName(mapId) {
+      return getMapDisplayName(mapId, this.seasonMapNames);
+    },
     async ReloadServers() {
       this.servers = await this.GetAllAvailableServers();
       let arrIndex = this.servers
