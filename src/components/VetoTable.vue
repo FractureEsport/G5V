@@ -96,7 +96,10 @@ export default {
           side: ""
         }
       ],
-      expanded: []
+      expanded: [],
+      // Custom display names (typically for Workshop maps) configured on the
+      // match's season, if any - see loadSeasonMapNames().
+      seasonMapNames: {}
     };
   },
   mounted() {
@@ -104,11 +107,25 @@ export default {
   },
   methods: {
     mapDisplayName(mapId) {
-      return getMapDisplayName(mapId);
+      return getMapDisplayName(mapId, this.seasonMapNames);
+    },
+    async loadSeasonMapNames(seasonId) {
+      if (!seasonId) return;
+      try {
+        const cvars = await this.GetSeasonCVARs(seasonId);
+        if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
+          this.seasonMapNames = JSON.parse(cvars.map_pool_names);
+        }
+      } catch (error) {
+        this.seasonMapNames = {};
+      }
     },
     async useStreamOrStaticData() {
       // Template will contain v-rows/etc like on main Team page.
-      await this.GetMatchData(this.match_id);
+      const matchData = await this.GetMatchData(this.match_id);
+      if (matchData && typeof matchData === "object") {
+        await this.loadSeasonMapNames(matchData.season_id);
+      }
       this.getVetoInfo();
     },
     async getVetoInfo() {

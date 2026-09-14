@@ -110,7 +110,10 @@ export default {
       allowRefresh: false,
       timeoutId: -1,
       isFinished: false,
-      apiUrl: process.env?.VUE_APP_G5V_API_URL || "/api"
+      apiUrl: process.env?.VUE_APP_G5V_API_URL || "/api",
+      // Custom display names (typically for Workshop maps) configured on the
+      // match's season, if any - see loadSeasonMapNames().
+      seasonMapNames: {}
     };
   },
   created() {
@@ -231,8 +234,20 @@ export default {
     async useStreamOrStaticData() {
       // Template will contain v-rows/etc like on main Team page.
       let matchData = await this.GetMatchData(this.match_id);
+      await this.loadSeasonMapNames(matchData.season_id);
       this.getMapString(matchData);
       this.GetMapPlayerStats(matchData);
+    },
+    async loadSeasonMapNames(seasonId) {
+      if (!seasonId) return;
+      try {
+        const cvars = await this.GetSeasonCVARs(seasonId);
+        if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
+          this.seasonMapNames = JSON.parse(cvars.map_pool_names);
+        }
+      } catch (error) {
+        this.seasonMapNames = {};
+      }
     },
     async retrieveStatsHelper(serverResponse, matchData) {
       if (typeof serverResponse == "string") return;
@@ -357,7 +372,8 @@ export default {
         this.$set(
           this.mapStats[index],
           "map",
-          "Map: " + getMapDisplayName(singleMapStat.map_name)
+          "Map: " +
+            getMapDisplayName(singleMapStat.map_name, this.seasonMapNames)
         );
         this.$set(this.mapStats[index], "demo", singleMapStat.demoFile);
       });
