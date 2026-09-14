@@ -342,7 +342,7 @@ export default {
     gotvConnectText(match) {
       const ip = match.ip_cast || match.ip_string;
       if (!ip || !match.gotv_port) return "";
-      return `password 4c4st3rs; connect ${ip}:${match.gotv_port}`;
+      return `connect ${ip}:${match.gotv_port}; password 4c4st3rs`;
     },
 
     legacyCopyToClipboard(text) {
