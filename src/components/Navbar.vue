@@ -84,15 +84,25 @@
             <v-list-item-title>{{ $t("Navbar.AllTeams") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/teams/create'" exact>
+          <v-list-item
+            v-if="user.id != null && user.admin != 1"
+            :to="'/teams/create'"
+            exact
+          >
             <v-list-item-title>{{ $t("Navbar.CreateTeam") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/myservers'">
+          <v-list-item
+            v-if="user.id != null && user.admin != 1"
+            :to="'/myservers'"
+          >
             <v-list-item-title>{{ $t("Navbar.MyServers") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" @click="newDialog = true">
+          <v-list-item
+            v-if="user.id != null && user.admin != 1"
+            @click="newDialog = true"
+          >
             <v-list-item-title>{{ $t("Navbar.AddServer") }}</v-list-item-title>
           </v-list-item>
 
@@ -102,12 +112,6 @@
 
           <v-list-item v-if="user.id != null" :to="'/myseasons'">
             <v-list-item-title>{{ $t("Navbar.MySeasons") }}</v-list-item-title>
-          </v-list-item>
-
-          <v-list-item :to="'/leaderboard'">
-            <v-list-item-title>
-              {{ $t("Navbar.PlayerLeader") }}
-            </v-list-item-title>
           </v-list-item>
 
           <v-list-item :to="'/stats'">
