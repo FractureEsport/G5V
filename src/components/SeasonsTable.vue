@@ -831,12 +831,19 @@ export default {
       });
       return { ...names, ...this.seasonDefaults.map_pool_names };
     },
-    // Maps with no known display name anywhere (not the editor's own profile maps,
-    // not a recognized classic map, not already custom-named) - these are typically
-    // Workshop maps and get a free-text field to optionally name them.
+    // Maps with no known display name from the editor's own profile maps or a
+    // recognized classic map - these are typically Workshop maps and get a
+    // free-text field to optionally name them. Deliberately does NOT filter
+    // against seasonDefaults.map_pool_names: once the user starts typing (or
+    // an existing override loads), that would make the entry disappear from
+    // this list and unmount its own input field mid-edit.
     unknownMapPoolEntries() {
+      const profileNames = {};
+      this.MapList.forEach(m => {
+        profileNames[m.map_name] = m.map_display_name;
+      });
       return this.seasonDefaults.map_pool.filter(
-        mapId => !this.knownMapNames[mapId] && !KNOWN_MAPS[mapId]
+        mapId => !profileNames[mapId] && !KNOWN_MAPS[mapId]
       );
     },
     headers() {

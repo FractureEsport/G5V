@@ -40,7 +40,11 @@
                   <th>{{ $t("Matches.Team1") }}</th>
                   <th class="text-center">{{ $t("Cast.Series") }}</th>
                   <th>{{ $t("Matches.Team2") }}</th>
-                  <th v-for="n in 3" :key="'ah' + n" class="text-center">
+                  <th
+                    v-for="n in maxMapColumns"
+                    :key="'ah' + n"
+                    class="text-center"
+                  >
                     {{ $t("GlobalStats.Map") }} {{ n }}
                   </th>
                   <th class="text-center">{{ $t("Cast.Connection") }}</th>
@@ -67,7 +71,11 @@
                     >
                   </td>
                   <td class="font-weight-medium">{{ match.team2_string }}</td>
-                  <td v-for="n in 3" :key="'am' + n" class="text-center">
+                  <td
+                    v-for="n in maxMapColumns"
+                    :key="'am' + n"
+                    class="text-center"
+                  >
                     <template v-if="match.maps[n - 1]">
                       <div class="caption font-weight-bold">
                         {{ mapDisplayName(match.maps[n - 1].map) }}
@@ -141,7 +149,11 @@
                   <th>{{ $t("Matches.Team1") }}</th>
                   <th class="text-center">{{ $t("Cast.Series") }}</th>
                   <th>{{ $t("Matches.Team2") }}</th>
-                  <th v-for="n in 3" :key="'fh' + n" class="text-center">
+                  <th
+                    v-for="n in maxMapColumns"
+                    :key="'fh' + n"
+                    class="text-center"
+                  >
                     {{ $t("GlobalStats.Map") }} {{ n }}
                   </th>
                 </tr>
@@ -167,7 +179,11 @@
                     >
                   </td>
                   <td>{{ match.team2_string }}</td>
-                  <td v-for="n in 3" :key="'fm' + n" class="text-center">
+                  <td
+                    v-for="n in maxMapColumns"
+                    :key="'fm' + n"
+                    class="text-center"
+                  >
                     <template v-if="match.maps[n - 1]">
                       <div class="caption font-weight-bold">
                         {{ mapDisplayName(match.maps[n - 1].map) }}
@@ -276,6 +292,18 @@ export default {
         Number(this.user.admin) === 1 ||
         Number(this.user.super_admin) === 1
       );
+    },
+    // BO1/BO3 are the common case, but max_maps can go higher (BO5, BO7...) -
+    // size the map columns off the widest series actually shown instead of a
+    // hard-coded 3, or the extra maps would silently be omitted.
+    maxMapColumns() {
+      const maxOf = matches =>
+        matches.reduce((acc, m) => Math.max(acc, Number(m.max_maps) || 0), 0);
+      return Math.max(
+        maxOf(this.activeMatches),
+        maxOf(this.finishedMatches),
+        1
+      );
     }
   },
   async mounted() {
@@ -297,8 +325,9 @@ export default {
     async connectSSE() {
       this.sseClient = await this.GetCastStream();
       if (!this.sseClient) return;
-      await this.sseClient.connect();
-      this.connected = true;
+      // Register handlers before connecting - the server sends its initial
+      // snapshot as soon as the connection opens, so listening only after
+      // connect() resolves can miss it and leave the dashboard empty.
       this.sseClient.on("castData", data => {
         this.events = data.events || [];
         this.activeMatches = data.activeMatches || [];
@@ -307,6 +336,8 @@ export default {
       this.sseClient.on("error", () => {
         this.connected = false;
       });
+      await this.sseClient.connect();
+      this.connected = true;
     },
 
     connectUrl(match, type) {

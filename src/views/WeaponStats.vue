@@ -40,7 +40,7 @@
     </div>
 
     <v-alert v-else-if="weaponStats.length === 0" type="info">
-      {{ $t("PlayerStats.NoStatFound") }}
+      {{ $t("PlayerStats.NoPlayerStatFound") }}
     </v-alert>
 
     <v-card v-else>

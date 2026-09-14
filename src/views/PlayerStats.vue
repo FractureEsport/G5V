@@ -42,7 +42,7 @@
     </div>
 
     <v-alert v-else-if="stats.length === 0" type="info">
-      {{ $t("PlayerStats.NoStatFound") }}
+      {{ $t("PlayerStats.NoPlayerStatFound") }}
     </v-alert>
 
     <div v-else>
@@ -390,7 +390,11 @@ export default {
     },
     matchHeaders() {
       return [
-        { text: "Match", value: "match_id", sortable: false },
+        {
+          text: this.$t("Matches.MatchID"),
+          value: "match_id",
+          sortable: false
+        },
         { text: this.$t("PlayerStats.Kills"), value: "kills" },
         { text: this.$t("PlayerStats.Deaths"), value: "deaths" },
         { text: this.$t("PlayerStats.Assists"), value: "assists" },

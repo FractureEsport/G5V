@@ -40,7 +40,7 @@
     </div>
 
     <v-alert v-else-if="mapStats.length === 0" type="info">
-      {{ $t("PlayerStats.NoStatFound") }}
+      {{ $t("PlayerStats.NoPlayerStatFound") }}
     </v-alert>
 
     <v-card v-else>
@@ -106,7 +106,7 @@
         }}</template>
         <template v-slot:item.hsp="{ item }">{{ item.hsp }}%</template>
         <template v-slot:item.rating="{ item }">
-          <strong>{{ item.rating }}</strong>
+          <strong>{{ item.rating.toFixed(2) }}</strong>
         </template>
       </v-data-table>
     </v-card>
@@ -140,7 +140,7 @@ export default {
           const maps = await this.GetMapStats(matchId);
           if (Array.isArray(maps)) {
             maps.forEach(m => {
-              this.mapIdLookup[m.id] = m.map_name;
+              this.$set(this.mapIdLookup, m.id, m.map_name);
             });
           }
         })
@@ -225,10 +225,8 @@ export default {
         adr: g.rounds > 0 ? (g.damage / g.rounds).toFixed(2) : "0.00",
         rating:
           g.ratings.length > 0
-            ? (g.ratings.reduce((a, b) => a + b, 0) / g.ratings.length).toFixed(
-                2
-              )
-            : "0.00"
+            ? g.ratings.reduce((a, b) => a + b, 0) / g.ratings.length
+            : 0
       }));
     },
     headers() {
