@@ -18,6 +18,8 @@
       "PlayerStats": "Player Statistics",
       "Cast": "Cast / Observer",
       "ObsSlots": "OBS Slots",
+      "Administration": "Administration",
+      "Users": "Users",
       "Home": "Home"
     },
     "Login": {
@@ -170,6 +172,19 @@
       "NoMatch": "No match assigned",
       "CopyLink": "Copy Link",
       "LinkCopied": "Link copied to clipboard"
+    },
+    "AdminUsers": {
+      "Title": "User Management",
+      "AccessDenied": "Access reserved to super admins.",
+      "SearchLabel": "Search (name, Steam ID)",
+      "Name": "Name",
+      "SteamId": "Steam ID",
+      "SuperAdmin": "Super Admin",
+      "Admin": "Admin",
+      "Actions": "Actions",
+      "EditRights": "Edit permissions",
+      "UpdateSuccess": "{name}'s permissions have been updated.",
+      "UpdateError": "Error while saving."
     },
     "OverlayLive": {
       "NoMatch": "No live match",
@@ -449,6 +464,8 @@
       "PlayerStats": "Statistiques des joueurs",
       "Cast": "Cast / Observateur",
       "ObsSlots": "Slots OBS",
+      "Administration": "Administration",
+      "Users": "Utilisateurs",
       "Home": "Accueil"
     },
     "Login": {
@@ -601,6 +618,19 @@
       "NoMatch": "Aucun match assigné",
       "CopyLink": "Copier le lien",
       "LinkCopied": "Lien copié dans le presse-papiers"
+    },
+    "AdminUsers": {
+      "Title": "Gestion des utilisateurs",
+      "AccessDenied": "Accès réservé aux super-administrateurs.",
+      "SearchLabel": "Rechercher (nom, Steam ID)",
+      "Name": "Nom",
+      "SteamId": "Steam ID",
+      "SuperAdmin": "Super Admin",
+      "Admin": "Admin",
+      "Actions": "Actions",
+      "EditRights": "Modifier les droits",
+      "UpdateSuccess": "Droits de {name} mis à jour.",
+      "UpdateError": "Erreur lors de la sauvegarde."
     },
     "OverlayLive": {
       "NoMatch": "Aucun match en direct",
@@ -880,6 +910,8 @@
       "PlayerStats": "プレイヤー統計",
       "Cast": "キャスト/観戦",
       "ObsSlots": "OBSスロット",
+      "Administration": "管理",
+      "Users": "ユーザー",
       "Home": "ホーム"
     },
     "Login": {

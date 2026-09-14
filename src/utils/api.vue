@@ -141,12 +141,13 @@ export default {
       }
       return message;
     },
-    async GetAllUsers() {
+    async GetAllUsers(search = "") {
       let res;
       let message;
       try {
+        const query = search ? `?search=${encodeURIComponent(search)}` : "";
         res = await this.axioCall.get(
-          `${process.env?.VUE_APP_G5V_API_URL || "/api"}/users/`
+          `${process.env?.VUE_APP_G5V_API_URL || "/api"}/users/${query}`
         );
         message = res.data.users;
       } catch (error) {

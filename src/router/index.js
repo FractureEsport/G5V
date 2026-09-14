@@ -228,6 +228,12 @@ const routes = [
     meta: { hideChrome: true },
     component: () =>
       import(/* webpackChunkName: "Cast" */ "../views/OverlayLive.vue")
+  },
+  {
+    path: "/admin/users",
+    name: "AdminUsers",
+    component: () =>
+      import(/* webpackChunkName: "Admin" */ "../views/AdminUsers.vue")
   }
 ];
 

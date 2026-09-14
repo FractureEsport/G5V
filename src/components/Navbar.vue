@@ -134,6 +134,19 @@
             </v-list-item-title>
           </v-list-item>
         </v-list-item-group>
+
+        <template v-if="user.super_admin == 1">
+          <v-divider class="my-2" />
+          <v-subheader>{{ $t("Navbar.Administration") }}</v-subheader>
+          <v-list-item-group active-class="primary--text text--accent-4">
+            <v-list-item :to="'/admin/users'">
+              <v-list-item-icon>
+                <v-icon small>mdi-account-group</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>{{ $t("Navbar.Users") }}</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </template>
       </v-list>
     </v-navigation-drawer>
     <ServerDialog
