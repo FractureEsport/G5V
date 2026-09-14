@@ -136,7 +136,12 @@
               </strong>
             </div>
             <v-row class="justify-center">
-              <v-col lg="1" sm="12" v-for="maps in MapList" :key="maps.id">
+              <v-col
+                lg="1"
+                sm="12"
+                v-for="maps in availableMapPickerItems"
+                :key="maps.map_name"
+              >
                 <v-checkbox
                   v-model="newMatchData.map_pool"
                   :value="maps.map_name"
@@ -356,6 +361,7 @@
 
 <script>
 import ServerDialog from "./ServerDialog";
+import { getMapDisplayName } from "../utils/mapNames";
 export default {
   props: {
     user: Object
@@ -393,9 +399,26 @@ export default {
     responseSheet: false,
     newMatchId: null,
     isLoading: false,
-    MapList: []
+    MapList: [],
+    // When the selected season has its own map pool, these hold that pool (and any
+    // custom display names) so the picker below shows the season's maps instead of
+    // the creating user's personal map list - the season is the source of truth here.
+    seasonMapPool: [],
+    seasonMapNames: {}
   }),
   computed: {
+    // The list of maps shown/selectable in step 3: the season's own pool when the
+    // match belongs to a season with a configured pool, otherwise the user's
+    // personal map list (unchanged, non-season behaviour).
+    availableMapPickerItems() {
+      if (this.seasonMapPool.length) {
+        return this.seasonMapPool.map(mapId => ({
+          map_name: mapId,
+          map_display_name: getMapDisplayName(mapId, this.seasonMapNames)
+        }));
+      }
+      return this.MapList;
+    },
     currentTitle() {
       switch (this.step) {
         case 1:
@@ -420,7 +443,18 @@ export default {
     },
     step(val) {
       if (val == 3) {
-        if (this.selectedSeasonObject.cvars != null) {
+        if (this.selectedSeasonObject.cvars == null) {
+          this.seasonMapPool = [];
+          this.seasonMapNames = {};
+        }
+        // NOTE: cvars keys get deleted below as they're consumed, so re-entering
+        // step 3 for the same season a second time leaves `map_pool` already gone -
+        // in that case seasonMapPool/newMatchData.map_pool simply keep the value set
+        // on the first pass rather than being recomputed.
+        if (
+          this.selectedSeasonObject.cvars != null &&
+          this.selectedSeasonObject.cvars.map_pool != null
+        ) {
           let seasonCvars = this.selectedSeasonObject.cvars;
           this.newMatchData.min_players_to_ready =
             seasonCvars.min_players_to_ready == null
@@ -448,6 +482,14 @@ export default {
             seasonCvars.map_pool.length < 1
               ? []
               : seasonCvars.map_pool.trim().split(" ");
+          this.seasonMapPool = this.newMatchData.map_pool;
+          if (seasonCvars.map_pool_names) {
+            try {
+              this.seasonMapNames = JSON.parse(seasonCvars.map_pool_names);
+            } catch (error) {
+              this.seasonMapNames = {};
+            }
+          }
           this.newMatchData.spectators =
             seasonCvars.spectators.length < 1
               ? null
@@ -468,6 +510,7 @@ export default {
           delete seasonCvars.wingman;
           delete seasonCvars.skip_veto;
           delete seasonCvars.map_pool;
+          delete seasonCvars.map_pool_names;
           delete seasonCvars.side_type;
           delete seasonCvars.spectators;
           delete seasonCvars.map_sides;

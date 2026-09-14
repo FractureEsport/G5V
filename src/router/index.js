@@ -183,6 +183,57 @@ const routes = [
       import(
         /* webpackChunkName: "Leaderboards" */ "../views/TeamLeaderboard.vue"
       )
+  },
+  {
+    path: "/stats",
+    name: "GlobalStats",
+    component: () =>
+      import(/* webpackChunkName: "Stats" */ "../views/GlobalStats.vue")
+  },
+  {
+    path: "/stats/player/:steam_id",
+    name: "PlayerStats",
+    component: () =>
+      import(/* webpackChunkName: "Stats" */ "../views/PlayerStats.vue")
+  },
+  {
+    path: "/stats/player/:steam_id/maps",
+    name: "PlayerMapStats",
+    component: () =>
+      import(/* webpackChunkName: "Stats" */ "../views/PlayerMapStats.vue")
+  },
+  {
+    path: "/stats/player/:steam_id/weapons",
+    name: "WeaponStats",
+    component: () =>
+      import(/* webpackChunkName: "Stats" */ "../views/WeaponStats.vue")
+  },
+  {
+    path: "/cast",
+    name: "Cast",
+    meta: { hideChrome: false },
+    component: () =>
+      import(/* webpackChunkName: "Cast" */ "../views/CastView.vue")
+  },
+  {
+    path: "/cast/obs-slots",
+    name: "ObsSlots",
+    meta: { hideChrome: false },
+    component: () =>
+      import(/* webpackChunkName: "Cast" */ "../views/ObsSlots.vue")
+  },
+  {
+    path: "/overlay/:steamid/live",
+    name: "OverlayLive",
+    meta: { hideChrome: true },
+    component: () =>
+      import(/* webpackChunkName: "Cast" */ "../views/OverlayLive.vue")
+  },
+  {
+    path: "/admin/users",
+    name: "AdminUsers",
+    component: () =>
+      import(/* webpackChunkName: "Admin" */ "../views/AdminUsers.vue")
   }
 ];
 
