@@ -101,21 +101,11 @@
                         x-small
                         dark
                         color="blue darken-2"
-                        :href="connectUrl(match, 'server')"
+                        :href="connectUrl(match)"
                         target="_blank"
                       >
                         <v-icon x-small left>mdi-server</v-icon>
                         {{ $t("Cast.Server") }}
-                      </v-btn>
-                      <v-btn
-                        x-small
-                        dark
-                        color="indigo"
-                        :href="connectUrl(match, 'tv90')"
-                        target="_blank"
-                      >
-                        <v-icon x-small left>mdi-television-play</v-icon>
-                        {{ $t("Cast.TV90") }}
                       </v-btn>
                       <v-btn
                         x-small
@@ -340,22 +330,19 @@ export default {
       this.connected = true;
     },
 
-    connectUrl(match, type) {
+    connectUrl(match) {
       const ip = match.ip_cast || match.ip_string;
       const steamId = this.user.steam_id;
       if (!ip || !steamId) return "#";
-      const base = `steam://rungame/730/${steamId}/`;
-      if (type === "server") {
-        return `${base}+connect%20${ip}:${match.port}`;
-      }
-      if (!match.gotv_port) return "#";
-      return `${base}+connect%20${ip}:${match.gotv_port}`;
+      return `steam://rungame/730/${steamId}/+connect%20${ip}:${match.port}`;
     },
 
+    // GOTV relay password shared with every caster - not per-user or per-server
+    // secret, it's the same fixed value casters are already handed to spectate.
     gotvConnectText(match) {
       const ip = match.ip_cast || match.ip_string;
       if (!ip || !match.gotv_port) return "";
-      return `connect ${ip}:${match.gotv_port}`;
+      return `password 4c4st3rs; connect ${ip}:${match.gotv_port}`;
     },
 
     legacyCopyToClipboard(text) {
