@@ -170,7 +170,8 @@ export default {
     },
     async loadMatches() {
       try {
-        this.allMatches = (await this.GetAllMatches()) || [];
+const matches = await this.GetAllMatches();
+        this.allMatches = Array.isArray(matches) ? matches : [];
       } catch (error) {
         this.allMatches = [];
       }
