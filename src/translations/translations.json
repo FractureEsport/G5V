@@ -17,7 +17,6 @@
       "PlayerLeader": "Player Leaderboard",
       "PlayerStats": "Player Statistics",
       "Cast": "Cast / Observer",
-      "ObsSlots": "OBS Slots",
       "Administration": "Administration",
       "Users": "Users",
       "Home": "Home"
@@ -163,16 +162,7 @@
       "EventMapEnd": "{map} finished: {team1} {score1} - {score2} {team2}",
       "EventMatchEnd": "Match finished: {team1} {score1} - {score2} {team2}",
       "CopySuccess": "Command copied: {text}",
-      "CopyFailed": "Copy failed",
-      "ObsSlotsTitle": "OBS Slots",
-      "ObsSlotsHint": "Stable overlay links you can reassign to any match without changing your OBS scene.",
-      "NewSlot": "New Slot",
-      "SlotLabel": "Label",
-      "SlotUrl": "Overlay URL",
-      "AssignMatch": "Assign Match",
-      "NoMatch": "No match assigned",
-      "CopyLink": "Copy Link",
-      "LinkCopied": "Link copied to clipboard"
+      "CopyFailed": "Copy failed"
     },
     "AdminUsers": {
       "Title": "User Management",
@@ -418,6 +408,7 @@
       "TDiff": "Round Difference"
     },
     "misc": {
+      "Search": "Search",
       "Cancel": "Cancel",
       "Confirm": "Confirm",
       "Close": "Close",
@@ -465,7 +456,6 @@
       "PlayerLeader": "Classement des joueurs",
       "PlayerStats": "Statistiques des joueurs",
       "Cast": "Cast / Observateur",
-      "ObsSlots": "Slots OBS",
       "Administration": "Administration",
       "Users": "Utilisateurs",
       "Home": "Accueil"
@@ -611,16 +601,7 @@
       "EventMapEnd": "{map} terminée : {team1} {score1} - {score2} {team2}",
       "EventMatchEnd": "Match terminé : {team1} {score1} - {score2} {team2}",
       "CopySuccess": "Commande copiée : {text}",
-      "CopyFailed": "Échec de la copie",
-      "ObsSlotsTitle": "Slots OBS",
-      "ObsSlotsHint": "Liens d'overlay stables que vous pouvez réassigner à n'importe quel match sans changer votre scène OBS.",
-      "NewSlot": "Nouveau slot",
-      "SlotLabel": "Libellé",
-      "SlotUrl": "URL de l'overlay",
-      "AssignMatch": "Assigner un match",
-      "NoMatch": "Aucun match assigné",
-      "CopyLink": "Copier le lien",
-      "LinkCopied": "Lien copié dans le presse-papiers"
+      "CopyFailed": "Échec de la copie"
     },
     "AdminUsers": {
       "Title": "Gestion des utilisateurs",
@@ -866,6 +847,7 @@
       "TDiff": "Round Difference"
     },
     "misc": {
+      "Search": "Rechercher",
       "Cancel": "Annuler",
       "Confirm": "Confirmer",
       "Close": "Fermer",
@@ -913,7 +895,6 @@
       "PlayerLeader": "プレイヤーリーダーボード",
       "PlayerStats": "プレイヤー統計",
       "Cast": "キャスト/観戦",
-      "ObsSlots": "OBSスロット",
       "Administration": "管理",
       "Users": "ユーザー",
       "Home": "ホーム"
@@ -1256,6 +1237,7 @@
       "TDiff": "丸差"
     },
     "misc": {
+      "Search": "検索",
       "Cancel": "キャンセル",
       "Confirm": "確認",
       "Error": "エラー",

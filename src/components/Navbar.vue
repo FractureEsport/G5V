@@ -124,15 +124,6 @@
               {{ $t("Navbar.Cast") }}
             </v-list-item-title>
           </v-list-item>
-
-          <v-list-item
-            v-if="user.cast == 1 || user.admin == 1 || user.super_admin == 1"
-            :to="'/cast/obs-slots'"
-          >
-            <v-list-item-title>
-              {{ $t("Navbar.ObsSlots") }}
-            </v-list-item-title>
-          </v-list-item>
         </v-list-item-group>
 
         <template v-if="user.super_admin == 1">
