@@ -78,7 +78,7 @@
                   >
                     <template v-if="match.maps[n - 1]">
                       <div class="caption font-weight-bold">
-                        {{ mapDisplayName(match.maps[n - 1].map) }}
+                        {{ mapDisplayName(match.maps[n - 1].map, match) }}
                       </div>
                       <div
                         class="caption"
@@ -176,7 +176,7 @@
                   >
                     <template v-if="match.maps[n - 1]">
                       <div class="caption font-weight-bold">
-                        {{ mapDisplayName(match.maps[n - 1].map) }}
+                        {{ mapDisplayName(match.maps[n - 1].map, match) }}
                       </div>
                       <div class="caption grey--text">
                         {{ match.maps[n - 1].team1_score }} -
@@ -309,8 +309,17 @@ export default {
     }
   },
   methods: {
-    mapDisplayName(mapId) {
-      return getMapDisplayName(mapId);
+    findMatchById(matchId) {
+      return (
+        this.activeMatches.find(m => m.id === matchId) ||
+        this.finishedMatches.find(m => m.id === matchId)
+      );
+    },
+    // `match` carries that season's map_pool_names overrides (attached server-side by
+    // /matches/cast/stream) - without it a season's Workshop map custom name never
+    // resolves here, only the "Workshop #<id>" fallback.
+    mapDisplayName(mapId, match) {
+      return getMapDisplayName(mapId, match && match.map_display_names);
     },
     async connectSSE() {
       this.sseClient = await this.GetCastStream();
@@ -418,7 +427,10 @@ export default {
       }
       if (ev.event_type === "map_end") {
         return this.$t("Cast.EventMapEnd", {
-          map: this.mapDisplayName(ev.map_name),
+          map: this.mapDisplayName(
+            ev.map_name,
+            this.findMatchById(ev.match_id)
+          ),
           team1: ev.team1,
           score1: ev.team1_score,
           score2: ev.team2_score,
