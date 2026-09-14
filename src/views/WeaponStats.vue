@@ -39,7 +39,7 @@
       <v-skeleton-loader type="table" />
     </div>
 
-    <v-alert v-else-if="weaponStats.length === 0" type="info">
+    <v-alert v-else-if="extraStats.length === 0" type="info">
       {{ $t("PlayerStats.NoPlayerStatFound") }}
     </v-alert>
 
@@ -47,6 +47,19 @@
       <v-card-title class="primary white--text">
         <v-icon left dark>mdi-pistol</v-icon>
         {{ $t("GlobalStats.WeaponStats") }}
+        <v-spacer />
+        <v-select
+          v-if="seasonOptions.length > 0"
+          v-model="selectedSeasonId"
+          :items="seasonSelectItems"
+          item-text="text"
+          item-value="value"
+          dense
+          hide-details
+          filled
+          dark
+          style="max-width: 260px"
+        />
       </v-card-title>
       <v-data-table
         :headers="headers"
@@ -80,6 +93,12 @@ export default {
   data() {
     return {
       extraStats: [],
+      // match_id -> season_id, so stats can be filtered down to one season.
+      matchSeasonById: {},
+      // { id, name } entries for every season any of this player's matches
+      // belongs to, used to populate the season filter dropdown.
+      seasonOptions: [],
+      selectedSeasonId: null,
       isLoading: true,
       playerName: ""
     };
@@ -95,6 +114,35 @@ export default {
           const victim = res.find(e => e.player_steam_id === this.steamId);
           if (victim) this.playerName = victim.player_name;
         }
+
+        const matchIds = [...new Set(res.map(e => e.match_id))];
+        const seasonIds = new Set();
+        await Promise.all(
+          matchIds.map(async matchId => {
+            const matchData = await this.GetMatchData(matchId);
+            if (matchData && matchData.season_id) {
+              this.$set(this.matchSeasonById, matchId, matchData.season_id);
+              seasonIds.add(matchData.season_id);
+            }
+          })
+        );
+
+        await Promise.all(
+          [...seasonIds].map(async seasonId => {
+            try {
+              const seasonInfo = await this.GetSeasonInfo(seasonId);
+              if (seasonInfo && seasonInfo.name) {
+                this.seasonOptions.push({
+                  id: seasonId,
+                  name: seasonInfo.name
+                });
+              }
+            } catch (error) {
+              // Ignore - this season just won't show up in the filter.
+            }
+          })
+        );
+        this.seasonOptions.sort((a, b) => a.name.localeCompare(b.name));
       }
     } catch (error) {
       console.log(error);
@@ -106,8 +154,20 @@ export default {
     steamId() {
       return this.$route.params.steam_id;
     },
+    seasonSelectItems() {
+      return [
+        { value: null, text: this.$t("PlayerStats.AllSeasons") },
+        ...this.seasonOptions.map(s => ({ value: s.id, text: s.name }))
+      ];
+    },
+    filteredStats() {
+      if (this.selectedSeasonId == null) return this.extraStats;
+      return this.extraStats.filter(
+        e => this.matchSeasonById[e.match_id] === this.selectedSeasonId
+      );
+    },
     weaponStats() {
-      const myKills = this.extraStats.filter(
+      const myKills = this.filteredStats.filter(
         e =>
           e.attacker_steam_id === this.steamId && !e.suicide && !e.friendly_fire
       );

@@ -183,6 +183,7 @@
       "TeamBadge": "Team"
     },
     "PlayerStats": {
+      "AllSeasons": "All Seasons",
       "Kills": "Kills",
       "Deaths": "Deaths",
       "Assists": "Assists",
@@ -621,6 +622,7 @@
       "TeamBadge": "Équipe"
     },
     "PlayerStats": {
+      "AllSeasons": "Toutes les saisons",
       "Kills": "Kills",
       "Deaths": "Morts",
       "Assists": "Assistances",
@@ -1015,6 +1017,7 @@
       "Wallbang": "壁抜き"
     },
     "PlayerStats": {
+      "AllSeasons": "全シーズン",
       "Kills": "キルズ",
       "Deaths": "死者数",
       "Assists": "アシスト",
