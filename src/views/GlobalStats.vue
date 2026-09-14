@@ -4,6 +4,10 @@
       <v-card-title class="primary white--text py-3">
         <v-icon left dark>mdi-chart-bar</v-icon>
         {{ $t("GlobalStats.Title") }}
+        <v-btn text small dark to="/stats/global" class="ml-4">
+          <v-icon left small>mdi-chart-box-outline</v-icon>
+          {{ $t("GlobalStats.AdditionalStats") }}
+        </v-btn>
         <v-spacer />
         <v-text-field
           v-model="search"

@@ -793,6 +793,33 @@ export default {
       }
       return message;
     },
+    async GetAllExtraStats() {
+      let res;
+      let message;
+      try {
+        res = await this.axioCall.get(
+          `${process.env?.VUE_APP_G5V_API_URL || "/api"}/playerstatsextra`
+        );
+        message = res.data.playerStatExtra;
+      } catch (error) {
+        message = error.response.data.message;
+      }
+      return message;
+    },
+    async GetSeasonExtraStatsAll(seasonid) {
+      let res;
+      let message;
+      try {
+        res = await this.axioCall.get(
+          `${process.env?.VUE_APP_G5V_API_URL ||
+            "/api"}/playerstatsextra/season/${seasonid}`
+        );
+        message = res.data.extrastats;
+      } catch (error) {
+        message = error.response.data.message;
+      }
+      return message;
+    },
     async GetAllPlayers() {
       let res;
       let message;

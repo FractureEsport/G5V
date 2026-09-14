@@ -209,6 +209,12 @@ const routes = [
       import(/* webpackChunkName: "Stats" */ "../views/WeaponStats.vue")
   },
   {
+    path: "/stats/global",
+    name: "GlobalExtraStats",
+    component: () =>
+      import(/* webpackChunkName: "Stats" */ "../views/GlobalExtraStats.vue")
+  },
+  {
     path: "/cast",
     name: "Cast",
     meta: { hideChrome: false },
