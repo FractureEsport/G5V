@@ -123,6 +123,9 @@ export default {
       // steam id -> technical map id, keyed by the map_stats row id since
       // player_stats only stores map_id (the map_stats.id foreign key).
       mapIdLookup: {},
+      // Custom display names (typically for Workshop maps), merged from every
+      // season any of this player's matches belongs to.
+      seasonMapNames: {},
       isLoading: true
     };
   },
@@ -133,15 +136,39 @@ export default {
       if (!Array.isArray(res)) return;
       this.rawStats = res;
 
-      // Fetch map names for each unique match_id
+      // Fetch map names and season id for each unique match_id
       const matchIds = [...new Set(res.map(s => s.match_id))];
+      const seasonIds = new Set();
       await Promise.all(
         matchIds.map(async matchId => {
-          const maps = await this.GetMapStats(matchId);
+          const [maps, matchData] = await Promise.all([
+            this.GetMapStats(matchId),
+            this.GetMatchData(matchId)
+          ]);
           if (Array.isArray(maps)) {
             maps.forEach(m => {
               this.$set(this.mapIdLookup, m.id, m.map_name);
             });
+          }
+          if (matchData && matchData.season_id) {
+            seasonIds.add(matchData.season_id);
+          }
+        })
+      );
+
+      await Promise.all(
+        [...seasonIds].map(async seasonId => {
+          try {
+            const cvars = await this.GetSeasonCVARs(seasonId);
+            if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
+              // Reassign (not mutate) so Vue 2 picks up the new keys.
+              this.seasonMapNames = {
+                ...this.seasonMapNames,
+                ...JSON.parse(cvars.map_pool_names)
+              };
+            }
+          } catch (error) {
+            // Ignore - this season just won't have custom names resolved.
           }
         })
       );
@@ -214,7 +241,7 @@ export default {
 
       return Object.values(grouped).map(g => ({
         map_name: g.map_id,
-        map_display_name: getMapDisplayName(g.map_id),
+        map_display_name: getMapDisplayName(g.map_id, this.seasonMapNames),
         maps: g.maps,
         kills: g.kills,
         deaths: g.deaths,
