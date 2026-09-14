@@ -140,7 +140,8 @@
       "HSKills": "HS Kills",
       "BlindKills": "Blind Kills",
       "SmokeKills": "Smoke Kills",
-      "NoScope": "No Scope"
+      "NoScope": "No Scope",
+      "Wallbang": "Wallbang"
     },
     "Cast": {
       "Title": "Cast / Observer",
@@ -586,7 +587,8 @@
       "HSKills": "Kills HS",
       "BlindKills": "Kills aveugle",
       "SmokeKills": "Kills à travers la fumée",
-      "NoScope": "No Scope"
+      "NoScope": "No Scope",
+      "Wallbang": "Wallbang"
     },
     "Cast": {
       "Title": "Cast / Observateur",
@@ -1028,7 +1030,8 @@
       "HSKills": "HSキル",
       "BlindKills": "フラッシュキル",
       "SmokeKills": "スモークキル",
-      "NoScope": "ノースコープ"
+      "NoScope": "ノースコープ",
+      "Wallbang": "壁抜き"
     },
     "PlayerStats": {
       "Kills": "キルズ",

@@ -121,7 +121,8 @@ export default {
             hs: 0,
             blind: 0,
             smoke: 0,
-            noscope: 0
+            noscope: 0,
+            wallbang: 0
           };
         }
         map[w].kills++;
@@ -129,6 +130,7 @@ export default {
         if (e.attacker_blind) map[w].blind++;
         if (e.thru_smoke) map[w].smoke++;
         if (e.no_scope) map[w].noscope++;
+        if (e.penetrated) map[w].wallbang++;
       });
       return Object.values(map).map(w => ({
         ...w,
@@ -163,6 +165,11 @@ export default {
         {
           text: this.$t("GlobalStats.NoScope"),
           value: "noscope",
+          sortable: true
+        },
+        {
+          text: this.$t("GlobalStats.Wallbang"),
+          value: "wallbang",
           sortable: true
         }
       ];
