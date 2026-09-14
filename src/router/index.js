@@ -216,13 +216,6 @@ const routes = [
       import(/* webpackChunkName: "Cast" */ "../views/CastView.vue")
   },
   {
-    path: "/cast/obs-slots",
-    name: "ObsSlots",
-    meta: { hideChrome: false },
-    component: () =>
-      import(/* webpackChunkName: "Cast" */ "../views/ObsSlots.vue")
-  },
-  {
     path: "/overlay/:steamid/live",
     name: "OverlayLive",
     meta: { hideChrome: true },
