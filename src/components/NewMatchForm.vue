@@ -225,7 +225,16 @@
                 <v-switch
                   v-model="newMatchData.skip_veto"
                   :label="$t('CreateMatch.SkipVeto')"
+                  :disabled="newMatchData.external_veto"
                   ref="skipveto"
+                />
+              </v-col>
+              <v-col cols="2">
+                <v-switch
+                  v-model="newMatchData.external_veto"
+                  :label="$t('CreateMatch.ExternalVeto')"
+                  :disabled="newMatchData.skip_veto"
+                  ref="externalveto"
                 />
               </v-col>
             </v-row>
@@ -347,12 +356,39 @@
       @is-new-server="ReloadServers"
     />
     <v-bottom-sheet v-model="responseSheet" inset persistent>
-      <v-sheet class="text-center" height="200px">
+      <v-sheet
+        class="text-center"
+        :height="
+          newMatchData.external_veto && newMatchId != null ? 'auto' : '200px'
+        "
+      >
         <v-btn class="mt-6" text color="success" @click="GoToMatch">
           {{ $t("misc.Close") }}
         </v-btn>
         <div class="my-3">
           {{ response }}
+        </div>
+        <div
+          v-if="newMatchData.external_veto && newMatchId != null"
+          class="mb-6 px-6"
+        >
+          <div class="mb-2">{{ $t("CreateMatch.ExternalVetoCommand") }}</div>
+          <v-text-field
+            :value="externalVetoCommand"
+            readonly
+            outlined
+            dense
+            hide-details
+            class="mx-auto"
+            style="max-width: 400px"
+            @click="copyExternalVetoCommand"
+          >
+            <template v-slot:append>
+              <v-btn icon @click="copyExternalVetoCommand">
+                <v-icon>mdi-content-copy</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
         </div>
       </v-sheet>
     </v-bottom-sheet>
@@ -385,6 +421,11 @@ export default {
       players_per_team: 5,
       maps_to_win: 1,
       skip_veto: false,
+      // When true, the veto happens outside of MatchZy (e.g. a Discord bot)
+      // instead of live on the assigned server - the match is created and
+      // the server reserved, but nothing is loaded until that veto reports
+      // its final map back to G5API.
+      external_veto: false,
       map_pool: [],
       cvars: [],
       veto_first: "team1",
@@ -418,6 +459,9 @@ export default {
         }));
       }
       return this.MapList;
+    },
+    externalVetoCommand() {
+      return `/match g5id:${this.newMatchId}`;
     },
     currentTitle() {
       switch (this.step) {
@@ -478,6 +522,10 @@ export default {
             seasonCvars.skip_veto == null || seasonCvars.skip_veto == 0
               ? false
               : true;
+          this.newMatchData.external_veto =
+            seasonCvars.external_veto == null || seasonCvars.external_veto == 0
+              ? false
+              : true;
           this.newMatchData.map_pool =
             seasonCvars.map_pool.length < 1
               ? []
@@ -509,6 +557,7 @@ export default {
           delete seasonCvars.maps_to_win;
           delete seasonCvars.wingman;
           delete seasonCvars.skip_veto;
+          delete seasonCvars.external_veto;
           delete seasonCvars.map_pool;
           delete seasonCvars.map_pool_names;
           delete seasonCvars.side_type;
@@ -611,6 +660,7 @@ export default {
             match_cvars: newCvar,
             veto_first: this.newMatchData.veto_first,
             skip_veto: this.newMatchData.skip_veto,
+            external_veto: this.newMatchData.external_veto,
             wingman: this.newMatchData.wingman,
             spectator_auths: this.newMatchData.spectators,
             min_players_to_ready: parseInt(
@@ -644,6 +694,13 @@ export default {
       console.log(this.newMatchId);
       if (this.newMatchId != null)
         this.$router.push({ name: `Match`, params: { id: this.newMatchId } });
+    },
+    copyExternalVetoCommand() {
+      try {
+        navigator.clipboard.writeText(this.externalVetoCommand);
+      } catch (error) {
+        // Ignore - clipboard access can be blocked (permissions, non-HTTPS).
+      }
     }
   }
 };
