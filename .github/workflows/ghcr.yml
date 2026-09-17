@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - '**'
+  pull_request:
 jobs:
   push:
-    name: "g5v:latest"
+    name: "g5v"
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       packages: write
     strategy:
       fail-fast: false
@@ -42,4 +44,4 @@ jobs:
           provenance: false
           sbom: false
           tags: |
-            ghcr.io/${{ steps.string.outputs.lowercase }}/g5v:latest
+            ghcr.io/${{ steps.string.outputs.lowercase }}/g5v:${{ github.ref == 'refs/heads/master' && 'latest' || 'next' }}
