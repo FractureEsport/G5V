@@ -103,7 +103,7 @@ export default {
   name: "GlobalExtraStats",
   data() {
     return {
-      tab: null,
+      tab: 0,
       rawStats: [],
       // map_stats.id -> technical map id, resolved once from every map ever
       // played so per-row map_id values in player_stat_extras can be named.
