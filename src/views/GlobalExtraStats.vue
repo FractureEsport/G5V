@@ -110,8 +110,9 @@ export default {
       // map_stats.id -> technical map id, resolved once from every map ever
       // played so per-row map_id values in player_stat_extras can be named.
       mapIdLookup: {},
-      // Custom display names (typically for Workshop maps) for the currently
-      // selected season - only meaningful once a single season is picked.
+      // Custom display names (typically for Workshop maps), merged from every
+      // season's own map_pool_names - a Workshop id's name is season-scoped
+      // but this page can show stats spanning many seasons at once.
       seasonMapNames: {},
       seasonOptions: [],
       selectedSeasonId: null,
@@ -133,6 +134,23 @@ export default {
         mapstats.forEach(m => {
           this.$set(this.mapIdLookup, m.id, m.map_name);
         });
+      }
+      if (Array.isArray(seasons)) {
+        await Promise.all(
+          seasons.map(async season => {
+            try {
+              const cvars = await this.GetSeasonCVARs(season.id);
+              if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
+                this.seasonMapNames = {
+                  ...this.seasonMapNames,
+                  ...JSON.parse(cvars.map_pool_names)
+                };
+              }
+            } catch (error) {
+              // Ignore - this season just won't have custom names resolved.
+            }
+          })
+        );
       }
       const seasonQuery = parseInt(this.$route.query.season, 10);
       if (!isNaN(seasonQuery)) {
@@ -293,22 +311,11 @@ export default {
   methods: {
     async loadStats() {
       this.isLoading = true;
-      this.seasonMapNames = {};
       try {
-        let res;
-        if (this.selectedSeasonId == null) {
-          res = await this.GetAllExtraStats();
-        } else {
-          res = await this.GetSeasonExtraStatsAll(this.selectedSeasonId);
-          try {
-            const cvars = await this.GetSeasonCVARs(this.selectedSeasonId);
-            if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
-              this.seasonMapNames = JSON.parse(cvars.map_pool_names);
-            }
-          } catch (error) {
-            // Ignore - this season just won't have custom names resolved.
-          }
-        }
+        const res =
+          this.selectedSeasonId == null
+            ? await this.GetAllExtraStats()
+            : await this.GetSeasonExtraStatsAll(this.selectedSeasonId);
         this.rawStats = Array.isArray(res) ? res : [];
       } catch (error) {
         console.log(error);
