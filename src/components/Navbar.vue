@@ -59,7 +59,7 @@
           </v-list-item>
 
           <v-list-item
-            v-if="user.id != null"
+            v-if="user.id != null && !isCastOnly"
             index="mymatches"
             :to="'/mymatches'"
           >
@@ -67,7 +67,7 @@
           </v-list-item>
 
           <v-list-item
-            v-if="user.id != null"
+            v-if="user.id != null && !isCastOnly"
             index="match_create"
             :to="'/match/create'"
           >
@@ -76,7 +76,7 @@
             }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/myteams'">
+          <v-list-item v-if="user.id != null && !isCastOnly" :to="'/myteams'">
             <v-list-item-title>{{ $t("Navbar.MyTeams") }}</v-list-item-title>
           </v-list-item>
 
@@ -85,7 +85,7 @@
           </v-list-item>
 
           <v-list-item
-            v-if="user.id != null && user.admin != 1"
+            v-if="user.id != null && user.admin != 1 && !isCastOnly"
             :to="'/teams/create'"
             exact
           >
@@ -93,14 +93,14 @@
           </v-list-item>
 
           <v-list-item
-            v-if="user.id != null && user.admin != 1"
+            v-if="user.id != null && user.admin != 1 && !isCastOnly"
             :to="'/myservers'"
           >
             <v-list-item-title>{{ $t("Navbar.MyServers") }}</v-list-item-title>
           </v-list-item>
 
           <v-list-item
-            v-if="user.id != null && user.admin != 1"
+            v-if="user.id != null && user.admin != 1 && !isCastOnly"
             @click="newDialog = true"
           >
             <v-list-item-title>{{ $t("Navbar.AddServer") }}</v-list-item-title>
@@ -110,7 +110,7 @@
             <v-list-item-title>{{ $t("Navbar.AllSeasons") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/myseasons'">
+          <v-list-item v-if="user.id != null && !isCastOnly" :to="'/myseasons'">
             <v-list-item-title>{{ $t("Navbar.MySeasons") }}</v-list-item-title>
           </v-list-item>
 
@@ -172,6 +172,18 @@ export default {
       loginDialog: false,
       apiUrl: process.env?.VUE_APP_G5V_API_URL || "/api"
     };
+  },
+  computed: {
+    // A dedicated cast/observer account (not also an admin or super admin)
+    // only needs Cast, Statistics, Seasons, Teams and All Matches - it isn't
+    // meant to play or manage its own matches/teams/servers.
+    isCastOnly() {
+      return (
+        this.user.cast == 1 &&
+        this.user.admin != 1 &&
+        this.user.super_admin != 1
+      );
+    }
   },
   watch: {
     group() {
