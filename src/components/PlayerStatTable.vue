@@ -15,27 +15,21 @@
           </div>
           <div
             class="text-subtitle-2 mapInfo"
-            v-if="
-              mapStats[index] != null && mapStats[index].start != null
-            "
+            v-if="mapStats[index] != null && mapStats[index].start != null"
             align="center"
           >
             {{ mapStats[index].start }}
           </div>
           <div
             class="text-subtitle-2 mapInfo"
-            v-if="
-              mapStats[index] != null && mapStats[index].end != null
-            "
+            v-if="mapStats[index] != null && mapStats[index].end != null"
             align="center"
           >
             {{ mapStats[index].end }}
           </div>
           <div
             class="text-subtitle-2 mapInfo"
-            v-if="
-              mapStats[index] != null && mapStats[index].demo != null
-            "
+            v-if="mapStats[index] != null && mapStats[index].demo != null"
             align="center"
           >
             <v-btn
@@ -48,9 +42,7 @@
           </div>
           <div
             class="text-subtitle-2 mapInfo"
-            v-if="
-              mapStats[index] != null && mapStats[index].end == null
-            "
+            v-if="mapStats[index] != null && mapStats[index].end == null"
             align="left"
           ></div>
         </v-container>
@@ -105,6 +97,7 @@
 </template>
 
 <script>
+import { getMapDisplayName } from "../utils/mapNames";
 export default {
   props: {
     match_id: Number
@@ -117,7 +110,10 @@ export default {
       allowRefresh: false,
       timeoutId: -1,
       isFinished: false,
-      apiUrl: process.env?.VUE_APP_G5V_API_URL || "/api"
+      apiUrl: process.env?.VUE_APP_G5V_API_URL || "/api",
+      // Custom display names (typically for Workshop maps) configured on the
+      // match's season, if any - see loadSeasonMapNames().
+      seasonMapNames: {}
     };
   },
   created() {
@@ -238,8 +234,20 @@ export default {
     async useStreamOrStaticData() {
       // Template will contain v-rows/etc like on main Team page.
       let matchData = await this.GetMatchData(this.match_id);
+      await this.loadSeasonMapNames(matchData.season_id);
       this.getMapString(matchData);
       this.GetMapPlayerStats(matchData);
+    },
+    async loadSeasonMapNames(seasonId) {
+      if (!seasonId) return;
+      try {
+        const cvars = await this.GetSeasonCVARs(seasonId);
+        if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
+          this.seasonMapNames = JSON.parse(cvars.map_pool_names);
+        }
+      } catch (error) {
+        this.seasonMapNames = {};
+      }
     },
     async retrieveStatsHelper(serverResponse, matchData) {
       if (typeof serverResponse == "string") return;
@@ -287,7 +295,7 @@ export default {
               // If we don't have a team ID, we must be pugging. Go based on
               // Team strings alone.
               teamNum = player.team_name == matchData.team1_string ? 1 : 2;
-              newName = 
+              newName =
                 player.team_name == matchData.team1_string
                   ? matchData.team1_string
                   : matchData.team2_string;
@@ -336,21 +344,38 @@ export default {
           this.$set(this.mapStats, index, {});
         }
 
-        this.$set(this.mapStats[index], 'score', "Score: " +
-          singleMapStat.team1_score +
-          " " +
-          this.GetScoreSymbol(
-            singleMapStat.team1_score,
+        this.$set(
+          this.mapStats[index],
+          "score",
+          "Score: " +
+            singleMapStat.team1_score +
+            " " +
+            this.GetScoreSymbol(
+              singleMapStat.team1_score,
+              singleMapStat.team2_score
+            ) +
+            " " +
             singleMapStat.team2_score
-          ) +
-          " " +
-          singleMapStat.team2_score);
-        this.$set(this.mapStats[index], 'start', "Map Start: " + new Date(singleMapStat.start_time).toLocaleString());
-        this.$set(this.mapStats[index], 'end', singleMapStat.end_time == null ?
-          null :
-          "Map End: " + new Date(singleMapStat.end_time).toLocaleString());
-        this.$set(this.mapStats[index], 'map', "Map: " + singleMapStat.map_name);
-        this.$set(this.mapStats[index], 'demo', singleMapStat.demoFile);
+        );
+        this.$set(
+          this.mapStats[index],
+          "start",
+          "Map Start: " + new Date(singleMapStat.start_time).toLocaleString()
+        );
+        this.$set(
+          this.mapStats[index],
+          "end",
+          singleMapStat.end_time == null
+            ? null
+            : "Map End: " + new Date(singleMapStat.end_time).toLocaleString()
+        );
+        this.$set(
+          this.mapStats[index],
+          "map",
+          "Map: " +
+            getMapDisplayName(singleMapStat.map_name, this.seasonMapNames)
+        );
+        this.$set(this.mapStats[index], "demo", singleMapStat.demoFile);
       });
       if (matchData.end_time != null) this.isFinished = true;
     }

@@ -136,7 +136,12 @@
               </strong>
             </div>
             <v-row class="justify-center">
-              <v-col lg="1" sm="12" v-for="maps in MapList" :key="maps.id">
+              <v-col
+                lg="1"
+                sm="12"
+                v-for="maps in availableMapPickerItems"
+                :key="maps.map_name"
+              >
                 <v-checkbox
                   v-model="newMatchData.map_pool"
                   :value="maps.map_name"
@@ -220,7 +225,16 @@
                 <v-switch
                   v-model="newMatchData.skip_veto"
                   :label="$t('CreateMatch.SkipVeto')"
+                  :disabled="newMatchData.external_veto"
                   ref="skipveto"
+                />
+              </v-col>
+              <v-col cols="2">
+                <v-switch
+                  v-model="newMatchData.external_veto"
+                  :label="$t('CreateMatch.ExternalVeto')"
+                  :disabled="newMatchData.skip_veto"
+                  ref="externalveto"
                 />
               </v-col>
             </v-row>
@@ -238,7 +252,7 @@
                       map:
                         newMatchData.map_pool[index] == null
                           ? entity
-                          : newMatchData.map_pool[index]
+                          : mapDisplayName(newMatchData.map_pool[index])
                     })
                   }}
                 </v-col>
@@ -342,12 +356,39 @@
       @is-new-server="ReloadServers"
     />
     <v-bottom-sheet v-model="responseSheet" inset persistent>
-      <v-sheet class="text-center" height="200px">
+      <v-sheet
+        class="text-center"
+        :height="
+          newMatchData.external_veto && newMatchId != null ? 'auto' : '200px'
+        "
+      >
         <v-btn class="mt-6" text color="success" @click="GoToMatch">
           {{ $t("misc.Close") }}
         </v-btn>
         <div class="my-3">
           {{ response }}
+        </div>
+        <div
+          v-if="newMatchData.external_veto && newMatchId != null"
+          class="mb-6 px-6"
+        >
+          <div class="mb-2">{{ $t("CreateMatch.ExternalVetoCommand") }}</div>
+          <v-text-field
+            :value="externalVetoCommand"
+            readonly
+            outlined
+            dense
+            hide-details
+            class="mx-auto"
+            style="max-width: 400px"
+            @click="copyExternalVetoCommand"
+          >
+            <template v-slot:append>
+              <v-btn icon @click="copyExternalVetoCommand">
+                <v-icon>mdi-content-copy</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
         </div>
       </v-sheet>
     </v-bottom-sheet>
@@ -356,6 +397,7 @@
 
 <script>
 import ServerDialog from "./ServerDialog";
+import { getMapDisplayName } from "../utils/mapNames";
 export default {
   props: {
     user: Object
@@ -379,6 +421,11 @@ export default {
       players_per_team: 5,
       maps_to_win: 1,
       skip_veto: false,
+      // When true, the veto happens outside of MatchZy (e.g. a Discord bot)
+      // instead of live on the assigned server - the match is created and
+      // the server reserved, but nothing is loaded until that veto reports
+      // its final map back to G5API.
+      external_veto: false,
       map_pool: [],
       cvars: [],
       veto_first: "team1",
@@ -393,9 +440,29 @@ export default {
     responseSheet: false,
     newMatchId: null,
     isLoading: false,
-    MapList: []
+    MapList: [],
+    // When the selected season has its own map pool, these hold that pool (and any
+    // custom display names) so the picker below shows the season's maps instead of
+    // the creating user's personal map list - the season is the source of truth here.
+    seasonMapPool: [],
+    seasonMapNames: {}
   }),
   computed: {
+    // The list of maps shown/selectable in step 3: the season's own pool when the
+    // match belongs to a season with a configured pool, otherwise the user's
+    // personal map list (unchanged, non-season behaviour).
+    availableMapPickerItems() {
+      if (this.seasonMapPool.length) {
+        return this.seasonMapPool.map(mapId => ({
+          map_name: mapId,
+          map_display_name: getMapDisplayName(mapId, this.seasonMapNames)
+        }));
+      }
+      return this.MapList;
+    },
+    externalVetoCommand() {
+      return `/match g5id:${this.newMatchId}`;
+    },
     currentTitle() {
       switch (this.step) {
         case 1:
@@ -420,7 +487,18 @@ export default {
     },
     step(val) {
       if (val == 3) {
-        if (this.selectedSeasonObject.cvars != null) {
+        if (this.selectedSeasonObject.cvars == null) {
+          this.seasonMapPool = [];
+          this.seasonMapNames = {};
+        }
+        // NOTE: cvars keys get deleted below as they're consumed, so re-entering
+        // step 3 for the same season a second time leaves `map_pool` already gone -
+        // in that case seasonMapPool/newMatchData.map_pool simply keep the value set
+        // on the first pass rather than being recomputed.
+        if (
+          this.selectedSeasonObject.cvars != null &&
+          this.selectedSeasonObject.cvars.map_pool != null
+        ) {
           let seasonCvars = this.selectedSeasonObject.cvars;
           this.newMatchData.min_players_to_ready =
             seasonCvars.min_players_to_ready == null
@@ -444,10 +522,22 @@ export default {
             seasonCvars.skip_veto == null || seasonCvars.skip_veto == 0
               ? false
               : true;
+          this.newMatchData.external_veto =
+            seasonCvars.external_veto == null || seasonCvars.external_veto == 0
+              ? false
+              : true;
           this.newMatchData.map_pool =
             seasonCvars.map_pool.length < 1
               ? []
               : seasonCvars.map_pool.trim().split(" ");
+          this.seasonMapPool = this.newMatchData.map_pool;
+          if (seasonCvars.map_pool_names) {
+            try {
+              this.seasonMapNames = JSON.parse(seasonCvars.map_pool_names);
+            } catch (error) {
+              this.seasonMapNames = {};
+            }
+          }
           this.newMatchData.spectators =
             seasonCvars.spectators.length < 1
               ? null
@@ -467,7 +557,9 @@ export default {
           delete seasonCvars.maps_to_win;
           delete seasonCvars.wingman;
           delete seasonCvars.skip_veto;
+          delete seasonCvars.external_veto;
           delete seasonCvars.map_pool;
+          delete seasonCvars.map_pool_names;
           delete seasonCvars.side_type;
           delete seasonCvars.spectators;
           delete seasonCvars.map_sides;
@@ -504,6 +596,9 @@ export default {
     this.MapList = await this.GetUserEnabledMapList(this.user.id);
   },
   methods: {
+    mapDisplayName(mapId) {
+      return getMapDisplayName(mapId, this.seasonMapNames);
+    },
     async ReloadServers() {
       this.servers = await this.GetAllAvailableServers();
       let arrIndex = this.servers
@@ -565,6 +660,7 @@ export default {
             match_cvars: newCvar,
             veto_first: this.newMatchData.veto_first,
             skip_veto: this.newMatchData.skip_veto,
+            external_veto: this.newMatchData.external_veto,
             wingman: this.newMatchData.wingman,
             spectator_auths: this.newMatchData.spectators,
             min_players_to_ready: parseInt(
@@ -598,6 +694,13 @@ export default {
       console.log(this.newMatchId);
       if (this.newMatchId != null)
         this.$router.push({ name: `Match`, params: { id: this.newMatchId } });
+    },
+    copyExternalVetoCommand() {
+      try {
+        navigator.clipboard.writeText(this.externalVetoCommand);
+      } catch (error) {
+        // Ignore - clipboard access can be blocked (permissions, non-HTTPS).
+      }
     }
   }
 };

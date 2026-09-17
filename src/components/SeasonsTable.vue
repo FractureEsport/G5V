@@ -18,14 +18,14 @@
           <v-btn
             color="primary"
             @click="newDialog = true"
-            v-if="user.id != null"
+            v-if="user.id != null && user.admin != 1"
           >
             {{ $t("Seasons.New") }}
           </v-btn>
           <v-btn
             color="secondary"
             @click="newImportDialog = true"
-            v-if="user.id != null"
+            v-if="user.id != null && user.admin != 1"
           >
             {{ $t("Seasons.ImportSeason") }}
           </v-btn>
@@ -52,7 +52,8 @@
       <template v-slot:item.actions="{ item }">
         <div
           v-if="
-            user.super_admin == 1 || user.admin == 1 || item.user_id == user.id
+            user.super_admin == 1 ||
+              (item.user_id == user.id && user.admin != 1)
           "
         >
           <v-icon @click="deleteSelectedSeason(item)">
@@ -316,11 +317,15 @@
                   </strong>
                 </v-col>
                 <v-row no-gutters class="justify-center">
-                  <v-col lg="1" sm="12" v-for="maps in MapList" :key="maps.id">
-                    <v-checkbox
+                  <v-col cols="12">
+                    <v-combobox
                       v-model="seasonDefaults.map_pool"
-                      :value="maps.map_name"
-                      :label="maps.map_display_name"
+                      :items="MapList.map(m => m.map_name)"
+                      :hint="$t('Seasons.MapPoolHint')"
+                      persistent-hint
+                      multiple
+                      chips
+                      deletable-chips
                       :rules="[
                         () =>
                           seasonDefaults.map_pool.length > 0 ||
@@ -330,6 +335,32 @@
                             seasonDefaults.maps_to_win - 1 ||
                           $t('CreateMatch.MapNotEnough')
                       ]"
+                    >
+                      <template v-slot:selection="{ item, index }">
+                        <v-chip
+                          close
+                          @click:close="
+                            seasonDefaults.map_pool.splice(index, 1)
+                          "
+                        >
+                          {{ mapDisplayName(item) }}
+                        </v-chip>
+                      </template>
+                    </v-combobox>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    md="6"
+                    v-for="mapId in unknownMapPoolEntries"
+                    :key="mapId"
+                  >
+                    <v-text-field
+                      dense
+                      :label="$t('Seasons.CustomMapNameLabel', { id: mapId })"
+                      :value="seasonDefaults.map_pool_names[mapId]"
+                      @input="
+                        val => $set(seasonDefaults.map_pool_names, mapId, val)
+                      "
                     />
                   </v-col>
                 </v-row>
@@ -354,7 +385,16 @@
                     <v-switch
                       v-model="seasonDefaults.skip_veto"
                       :label="$t('CreateMatch.SkipVeto')"
+                      :disabled="seasonDefaults.external_veto"
                       ref="skipveto"
+                    />
+                  </v-col>
+                  <v-col cols="2">
+                    <v-switch
+                      v-model="seasonDefaults.external_veto"
+                      :label="$t('CreateMatch.ExternalVeto')"
+                      :disabled="seasonDefaults.skip_veto"
+                      ref="externalveto"
                     />
                   </v-col>
                 </v-row>
@@ -459,6 +499,7 @@
 </template>
 
 <script>
+import { getMapDisplayName, KNOWN_MAPS } from "../utils/mapNames";
 export default {
   props: {
     user: Object
@@ -485,7 +526,9 @@ export default {
         players_per_team: 5,
         maps_to_win: 1,
         skip_veto: false,
+        external_veto: false,
         map_pool: [],
+        map_pool_names: {},
         spectators: [],
         side_type: "standard",
         map_sides: [],
@@ -534,7 +577,9 @@ export default {
             players_per_team: 5,
             maps_to_win: 1,
             skip_veto: false,
+            external_veto: false,
             map_pool: [],
+            map_pool_names: {},
             spectators: [],
             side_type: "standard",
             map_sides: [],
@@ -551,6 +596,9 @@ export default {
     }
   },
   methods: {
+    mapDisplayName(mapId) {
+      return getMapDisplayName(mapId, this.knownMapNames);
+    },
     async GetSeasons() {
       try {
         let res;
@@ -635,6 +683,7 @@ export default {
           newCvar.spectators =
             newCvar.spectators != "" ? newCvar.spectators.join(" ") : "";
           newCvar.map_pool = newCvar.map_pool.join(" ");
+          newCvar.map_pool_names = JSON.stringify(newCvar.map_pool_names || {});
           newCvar.map_sides =
             newCvar.map_sides != "" ? newCvar.map_sides.join(" ") : "";
         }
@@ -693,7 +742,9 @@ export default {
             players_per_team: 5,
             maps_to_win: 1,
             skip_veto: false,
+            external_veto: false,
             map_pool: [],
+            map_pool_names: {},
             spectators: [],
             side_type: "standard",
             map_sides: [],
@@ -723,8 +774,10 @@ export default {
             obj !== "players_per_team" &&
             obj !== "maps_to_win" &&
             obj !== "skip_veto" &&
+            obj !== "external_veto" &&
             obj !== "wingman" &&
             obj !== "map_pool" &&
+            obj !== "map_pool_names" &&
             obj !== "spectators" &&
             obj !== "side_type" &&
             obj !== "map_sides"
@@ -735,9 +788,19 @@ export default {
             (obj === "spectators" && seasonCvars[obj] !== "")
           )
             this.seasonDefaults[obj] = seasonCvars[obj].split(" ");
-          else if (obj === "maps_to_win")
+          else if (obj === "map_pool_names") {
+            try {
+              this.seasonDefaults.map_pool_names = JSON.parse(seasonCvars[obj]);
+            } catch (error) {
+              this.seasonDefaults.map_pool_names = {};
+            }
+          } else if (obj === "maps_to_win")
             this.seasonDefaults[obj] = parseInt(seasonCvars[obj]);
-          else if (obj === "skip_veto" || obj === "wingman") {
+          else if (
+            obj === "skip_veto" ||
+            obj === "external_veto" ||
+            obj === "wingman"
+          ) {
             seasonCvars[obj] = seasonCvars[obj] == 0 ? false : true;
             this.seasonDefaults[obj] = seasonCvars[obj];
           } else if (obj === "map_sides") {
@@ -776,6 +839,30 @@ export default {
   computed: {
     dateRangeText() {
       return this.newSeason.dates.join(" ~ ");
+    },
+    knownMapNames() {
+      // Merge the season editor's own map_list display names (map_name ->
+      // map_display_name) with any custom names already set for this season's pool.
+      const names = {};
+      this.MapList.forEach(m => {
+        names[m.map_name] = m.map_display_name;
+      });
+      return { ...names, ...this.seasonDefaults.map_pool_names };
+    },
+    // Maps with no known display name from the editor's own profile maps or a
+    // recognized classic map - these are typically Workshop maps and get a
+    // free-text field to optionally name them. Deliberately does NOT filter
+    // against seasonDefaults.map_pool_names: once the user starts typing (or
+    // an existing override loads), that would make the entry disappear from
+    // this list and unmount its own input field mid-edit.
+    unknownMapPoolEntries() {
+      const profileNames = {};
+      this.MapList.forEach(m => {
+        profileNames[m.map_name] = m.map_display_name;
+      });
+      return this.seasonDefaults.map_pool.filter(
+        mapId => !profileNames[mapId] && !KNOWN_MAPS[mapId]
+      );
     },
     headers() {
       return [

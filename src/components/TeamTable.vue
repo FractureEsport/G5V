@@ -35,7 +35,12 @@
     </template>
     <v-spacer />
     <template v-slot:item.actions="{ item }">
-      <div v-if="IsAnyAdmin(user) || user.id == teamInfo.owner_id">
+      <div
+        v-if="
+          user.super_admin == 1 ||
+            (user.id == teamInfo.owner_id && user.admin != 1)
+        "
+      >
         <v-icon :disabled="isDisabled" @click="deleteMember(item)">
           mdi-delete
         </v-icon>
@@ -67,8 +72,10 @@
       <v-toolbar flat>
         <v-toolbar-title
           v-if="
-            !(IsAnyAdmin(user) || user.id == teamInfo.owner_id) &&
-              $vuetify.breakpoint.mdAndDown
+            !(
+              user.super_admin == 1 ||
+              (user.id == teamInfo.owner_id && user.admin != 1)
+            ) && $vuetify.breakpoint.mdAndDown
           "
           >{{ teamInfo.name }}</v-toolbar-title
         >
@@ -114,7 +121,12 @@
           inset
           vertical
         />
-        <div v-if="IsAnyAdmin(user) || user.id == teamInfo.owner_id">
+        <div
+          v-if="
+            user.super_admin == 1 ||
+              (user.id == teamInfo.owner_id && user.admin != 1)
+          "
+        >
           <v-icon :disabled="isDisabled" @click="deleteMember(null)">
             mdi-delete
           </v-icon>
@@ -126,9 +138,9 @@
           <template v-slot:activator="{ on, attrs }">
             <div
               v-if="
-                IsAnyAdmin(user) ||
-                  user.id == teamInfo.owner_id ||
-                  (user.id != null && teamInfo.id == -1)
+                user.super_admin == 1 ||
+                  (user.id == teamInfo.owner_id && user.admin != 1) ||
+                  (user.id != null && user.admin != 1 && teamInfo.id == -1)
               "
             >
               <v-btn
@@ -232,7 +244,12 @@
         </v-dialog>
         <v-dialog v-model="authDialog" max-width="500px">
           <template v-slot:activator="{ on, attrs }">
-            <div v-if="IsAnyAdmin(user) || user.id == teamInfo.owner_id">
+            <div
+              v-if="
+                user.super_admin == 1 ||
+                  (user.id == teamInfo.owner_id && user.admin != 1)
+              "
+            >
               <v-btn
                 :disabled="isMembersDisabled"
                 color="secondary"
@@ -508,6 +525,13 @@ export default {
     if (this.$route.params.id != "create") {
       this.GetTeamInfo();
     } else {
+      if (this.user.admin == 1 && this.user.super_admin != 1) {
+        // Admins can view every team but are not allowed to create one -
+        // team ownership/management is reserved for regular users and
+        // super admins.
+        this.$router.push({ name: "Teams" });
+        return;
+      }
       this.isLoading = false;
       this.isDisabled = false;
       this.teamInfo = {
@@ -560,12 +584,12 @@ export default {
           }
         }
         this.isDisabled = !(
-          (await this.IsAnyAdmin(this.user)) ||
-          this.teamInfo.owner_id == this.user.id
+          this.user.super_admin == 1 ||
+          (this.teamInfo.owner_id == this.user.id && this.user.admin != 1)
         );
         this.isMembersDisabled = !(
-          (await this.IsAnyAdmin(this.user)) ||
-          this.teamInfo.owner_id == this.user.id
+          this.user.super_admin == 1 ||
+          (this.teamInfo.owner_id == this.user.id && this.user.admin != 1)
         );
       } catch (err) {
         console.log(err);

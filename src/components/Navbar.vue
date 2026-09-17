@@ -59,7 +59,7 @@
           </v-list-item>
 
           <v-list-item
-            v-if="user.id != null"
+            v-if="user.id != null && !isCastOnly"
             index="mymatches"
             :to="'/mymatches'"
           >
@@ -67,7 +67,7 @@
           </v-list-item>
 
           <v-list-item
-            v-if="user.id != null"
+            v-if="user.id != null && !isCastOnly"
             index="match_create"
             :to="'/match/create'"
           >
@@ -76,7 +76,7 @@
             }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/myteams'">
+          <v-list-item v-if="user.id != null && !isCastOnly" :to="'/myteams'">
             <v-list-item-title>{{ $t("Navbar.MyTeams") }}</v-list-item-title>
           </v-list-item>
 
@@ -84,15 +84,25 @@
             <v-list-item-title>{{ $t("Navbar.AllTeams") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/teams/create'" exact>
+          <v-list-item
+            v-if="user.id != null && user.admin != 1 && !isCastOnly"
+            :to="'/teams/create'"
+            exact
+          >
             <v-list-item-title>{{ $t("Navbar.CreateTeam") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/myservers'">
+          <v-list-item
+            v-if="user.id != null && user.admin != 1 && !isCastOnly"
+            :to="'/myservers'"
+          >
             <v-list-item-title>{{ $t("Navbar.MyServers") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" @click="newDialog = true">
+          <v-list-item
+            v-if="user.id != null && user.admin != 1 && !isCastOnly"
+            @click="newDialog = true"
+          >
             <v-list-item-title>{{ $t("Navbar.AddServer") }}</v-list-item-title>
           </v-list-item>
 
@@ -100,16 +110,38 @@
             <v-list-item-title>{{ $t("Navbar.AllSeasons") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="user.id != null" :to="'/myseasons'">
+          <v-list-item v-if="user.id != null && !isCastOnly" :to="'/myseasons'">
             <v-list-item-title>{{ $t("Navbar.MySeasons") }}</v-list-item-title>
           </v-list-item>
 
-          <v-list-item :to="'/leaderboard'">
+          <v-list-item :to="'/stats'">
             <v-list-item-title>
-              {{ $t("Navbar.PlayerLeader") }}
+              {{ $t("Navbar.PlayerStats") }}
+            </v-list-item-title>
+          </v-list-item>
+
+          <v-list-item
+            v-if="user.cast == 1 || user.admin == 1 || user.super_admin == 1"
+            :to="'/cast'"
+          >
+            <v-list-item-title>
+              {{ $t("Navbar.Cast") }}
             </v-list-item-title>
           </v-list-item>
         </v-list-item-group>
+
+        <template v-if="user.super_admin == 1">
+          <v-divider class="my-2" />
+          <v-subheader>{{ $t("Navbar.Administration") }}</v-subheader>
+          <v-list-item-group active-class="primary--text text--accent-4">
+            <v-list-item :to="'/admin/users'">
+              <v-list-item-icon>
+                <v-icon small>mdi-account-group</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>{{ $t("Navbar.Users") }}</v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </template>
       </v-list>
     </v-navigation-drawer>
     <ServerDialog
@@ -140,6 +172,18 @@ export default {
       loginDialog: false,
       apiUrl: process.env?.VUE_APP_G5V_API_URL || "/api"
     };
+  },
+  computed: {
+    // A dedicated cast/observer account (not also an admin or super admin)
+    // only needs Cast, Statistics, Seasons, Teams and All Matches - it isn't
+    // meant to play or manage its own matches/teams/servers.
+    isCastOnly() {
+      return (
+        this.user.cast == 1 &&
+        this.user.admin != 1 &&
+        this.user.super_admin != 1
+      );
+    }
   },
   watch: {
     group() {

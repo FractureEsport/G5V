@@ -12,10 +12,10 @@
     >
       <template v-slot:item.map="{ item }">
         <b v-if="item.pick_or_veto === 'pick'">
-          {{ item.map }}
+          {{ mapDisplayName(item.map) }}
         </b>
         <div v-else>
-          {{ item.map }}
+          {{ mapDisplayName(item.map) }}
         </div>
       </template>
       <template v-slot:item.pick_or_veto="{ item }">
@@ -78,6 +78,7 @@
 </template>
 
 <script>
+import { getMapDisplayName } from "../utils/mapNames";
 export default {
   props: {
     match_id: Number
@@ -95,16 +96,36 @@ export default {
           side: ""
         }
       ],
-      expanded: []
+      expanded: [],
+      // Custom display names (typically for Workshop maps) configured on the
+      // match's season, if any - see loadSeasonMapNames().
+      seasonMapNames: {}
     };
   },
   mounted() {
     this.useStreamOrStaticData();
   },
   methods: {
+    mapDisplayName(mapId) {
+      return getMapDisplayName(mapId, this.seasonMapNames);
+    },
+    async loadSeasonMapNames(seasonId) {
+      if (!seasonId) return;
+      try {
+        const cvars = await this.GetSeasonCVARs(seasonId);
+        if (cvars && typeof cvars === "object" && cvars.map_pool_names) {
+          this.seasonMapNames = JSON.parse(cvars.map_pool_names);
+        }
+      } catch (error) {
+        this.seasonMapNames = {};
+      }
+    },
     async useStreamOrStaticData() {
       // Template will contain v-rows/etc like on main Team page.
-      await this.GetMatchData(this.match_id);
+      const matchData = await this.GetMatchData(this.match_id);
+      if (matchData && typeof matchData === "object") {
+        await this.loadSeasonMapNames(matchData.season_id);
+      }
       this.getVetoInfo();
     },
     async getVetoInfo() {
