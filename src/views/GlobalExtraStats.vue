@@ -14,18 +14,17 @@
     </v-card>
 
     <v-card>
-      <v-toolbar flat color="grey lighten-4" dense class="px-2">
-        <v-tabs v-model="tab" color="primary" class="flex-grow-0">
-          <v-tab>
+      <div class="d-flex flex-wrap align-center grey lighten-4 px-2">
+        <v-tabs v-model="tab" color="primary" class="extra-stats-tabs">
+          <v-tab @click="tab = 0">
             <v-icon left small>mdi-map</v-icon>
             {{ $t("GlobalStats.MapStats") }}
           </v-tab>
-          <v-tab>
+          <v-tab @click="tab = 1">
             <v-icon left small>mdi-pistol</v-icon>
             {{ $t("GlobalStats.WeaponStats") }}
           </v-tab>
         </v-tabs>
-        <v-spacer />
         <v-select
           v-if="seasonOptions.length > 0"
           v-model="selectedSeasonId"
@@ -37,9 +36,9 @@
           outlined
           background-color="white"
           style="max-width: 260px"
-          class="my-2"
+          class="my-2 ml-auto"
         />
-      </v-toolbar>
+      </div>
       <v-divider />
 
       <v-alert
@@ -349,3 +348,15 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.extra-stats-tabs ::v-deep .v-tab {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+.extra-stats-tabs ::v-deep .v-tab--active {
+  background-color: var(--v-primary-base, #1976d2);
+  color: #fff !important;
+  border-radius: 4px 4px 0 0;
+}
+</style>
