@@ -6,7 +6,7 @@
         <span class="text-h5">{{ $t("GlobalStats.AdditionalStats") }}</span>
       </v-card-title>
       <v-card-text class="pb-0">
-        <v-btn text small to="/stats">
+        <v-btn outlined small color="primary" to="/stats">
           <v-icon left small>mdi-chart-line</v-icon>
           {{ $t("GlobalStats.GlobalStats") }}
         </v-btn>
@@ -14,8 +14,8 @@
     </v-card>
 
     <v-card>
-      <v-card-title class="primary white--text">
-        <v-tabs v-model="tab" dark background-color="transparent">
+      <v-toolbar flat color="grey lighten-4" dense class="px-2">
+        <v-tabs v-model="tab" color="primary" class="flex-grow-0">
           <v-tab>
             <v-icon left small>mdi-map</v-icon>
             {{ $t("GlobalStats.MapStats") }}
@@ -34,11 +34,13 @@
           item-value="value"
           dense
           hide-details
-          filled
-          dark
+          outlined
+          background-color="white"
           style="max-width: 260px"
+          class="my-2"
         />
-      </v-card-title>
+      </v-toolbar>
+      <v-divider />
 
       <v-alert
         v-if="!isLoading && rawStats.length === 0"
