@@ -385,7 +385,16 @@
                     <v-switch
                       v-model="seasonDefaults.skip_veto"
                       :label="$t('CreateMatch.SkipVeto')"
+                      :disabled="seasonDefaults.external_veto"
                       ref="skipveto"
+                    />
+                  </v-col>
+                  <v-col cols="2">
+                    <v-switch
+                      v-model="seasonDefaults.external_veto"
+                      :label="$t('CreateMatch.ExternalVeto')"
+                      :disabled="seasonDefaults.skip_veto"
+                      ref="externalveto"
                     />
                   </v-col>
                 </v-row>
@@ -517,6 +526,7 @@ export default {
         players_per_team: 5,
         maps_to_win: 1,
         skip_veto: false,
+        external_veto: false,
         map_pool: [],
         map_pool_names: {},
         spectators: [],
@@ -567,6 +577,7 @@ export default {
             players_per_team: 5,
             maps_to_win: 1,
             skip_veto: false,
+            external_veto: false,
             map_pool: [],
             map_pool_names: {},
             spectators: [],
@@ -731,6 +742,7 @@ export default {
             players_per_team: 5,
             maps_to_win: 1,
             skip_veto: false,
+            external_veto: false,
             map_pool: [],
             map_pool_names: {},
             spectators: [],
@@ -762,6 +774,7 @@ export default {
             obj !== "players_per_team" &&
             obj !== "maps_to_win" &&
             obj !== "skip_veto" &&
+            obj !== "external_veto" &&
             obj !== "wingman" &&
             obj !== "map_pool" &&
             obj !== "map_pool_names" &&
@@ -783,7 +796,11 @@ export default {
             }
           } else if (obj === "maps_to_win")
             this.seasonDefaults[obj] = parseInt(seasonCvars[obj]);
-          else if (obj === "skip_veto" || obj === "wingman") {
+          else if (
+            obj === "skip_veto" ||
+            obj === "external_veto" ||
+            obj === "wingman"
+          ) {
             seasonCvars[obj] = seasonCvars[obj] == 0 ? false : true;
             this.seasonDefaults[obj] = seasonCvars[obj];
           } else if (obj === "map_sides") {
