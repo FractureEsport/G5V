@@ -36,14 +36,9 @@
         </v-toolbar>
       </template>
       <template v-slot:item.rcon_password="{ item }">
-        <v-text-field
-          v-model="item.rcon_password"
-          :append-icon="item.showRcon ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="item.showRcon ? 'text' : 'password'"
-          readonly
-          @click:append="item.showRcon = !item.showRcon"
-          v-if="item.rcon_password != null"
-        />
+        <span v-if="item.rcon_password != null">
+          <v-icon small left>mdi-lock</v-icon>{{ $t("MyServers.RCONPassSet") }}
+        </span>
       </template>
       <template v-slot:item.name="{ item }">
         <router-link :to="{ path: '/user/' + item.user_id }">
@@ -288,7 +283,6 @@ export default {
         }
         if (typeof res == "string") res = [];
         res.forEach(async season => {
-          season.showRcon = false;
           season.colour = "gray";
           season.isLoading = false;
           this.servers.push(season);
@@ -327,7 +321,10 @@ export default {
     },
     async editSelectedServer(item) {
       this.formTitle = this.$t("MyServers.FormTitleEdit");
-      this.newServer = item;
+      // The API only ever returns a hash of the RCON password (never the
+      // password itself), so it can't be pre-filled here - start blank and
+      // let ServerDialog treat an untouched field as "keep the current one".
+      this.newServer = { ...item, rcon_password: "" };
       this.newDialog = true;
       return;
     },

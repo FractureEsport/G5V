@@ -78,10 +78,17 @@
                     <v-text-field
                       v-model="serverInfo.rcon_password"
                       :label="$t('ServerCreate.FormRCONPassword')"
+                      :hint="
+                        serverInfo.id != null
+                          ? $t('ServerCreate.FormRCONPasswordEditHint')
+                          : ''
+                      "
+                      persistent-hint
                       :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="showPass ? 'text' : 'password'"
                       name="rcon_password"
                       ref="password"
+                      autocomplete="new-password"
                       @click:append="showPass = !showPass"
                     />
                   </v-col>
@@ -198,7 +205,13 @@ export default {
             ip_string: this.serverInfo.ip_string,
             port: this.serverInfo.port,
             display_name: this.serverInfo.display_name,
-            rcon_password: this.serverInfo.rcon_password,
+            // Editing without entering a new password must not overwrite the
+            // existing one - the API never sends back a usable value to resubmit,
+            // so an empty field here means "keep the current password".
+            rcon_password:
+              this.serverInfo.id != null && !this.serverInfo.rcon_password
+                ? null
+                : this.serverInfo.rcon_password,
             public_server:
               this.serverInfo.public_server == null
                 ? false
