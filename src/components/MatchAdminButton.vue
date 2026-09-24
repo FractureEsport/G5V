@@ -653,29 +653,25 @@ export default {
     async sendServerChange() {
       if (this.$refs.serverForm.validate()) {
         this.isLoading = true;
-        let serverRes;
-        let matchObject = [
-          {
-            match_id: this.matchInfo.id,
-            server_id: this.selectedServer
-          }
-        ];
         let backupObject = [
           {
             server_id: this.selectedServer,
             backup_file: this.selectedBackup.trim().split(/\s+/)[0]
           }
         ];
-        serverRes = await this.UpdateMatchInfo(matchObject);
-        this.response =
-          serverRes.response == null ? serverRes.message : serverRes.response;
-        this.serverChangeDialog = false;
-        serverRes = await this.RestoreFromRemoteBackup(
+        // Loading the remote backup already points the match at the new
+        // server and flips the in_use flags. A prior call to update the
+        // match's server_id here would call get5_loadmatch_url on the new
+        // server first, leaving it with a non-zero gamestate, which then
+        // makes the remote backup restore below think the server is
+        // unavailable and skip loading the backup entirely.
+        let serverRes = await this.RestoreFromRemoteBackup(
           this.matchInfo.id,
           backupObject
         );
-        this.response +=
+        this.response =
           serverRes.response == null ? serverRes.message : serverRes.response;
+        this.serverChangeDialog = false;
         this.isLoading = false;
         this.responseSheet = true;
       }
