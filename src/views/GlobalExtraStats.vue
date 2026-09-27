@@ -81,6 +81,14 @@
             <template v-slot:item.weapon="{ item }">
               <strong>{{ formatWeapon(item.weapon) }}</strong>
             </template>
+            <template v-slot:item.top_killer="{ item }">
+              <span v-if="item.top_killer">
+                {{ item.top_killer }}
+                <span class="grey--text text-caption"
+                  >({{ item.top_killer_kills }})</span
+                >
+              </span>
+            </template>
             <template v-slot:item.hsp="{ item }">
               <v-progress-linear
                 :value="item.hsp"
@@ -181,6 +189,7 @@ export default {
         if (!grouped[mapId]) {
           grouped[mapId] = {
             map_id: mapId,
+            mapStatIds: new Set(),
             kills: 0,
             hs: 0,
             blind: 0,
@@ -190,6 +199,7 @@ export default {
           };
         }
         const g = grouped[mapId];
+        g.mapStatIds.add(e.map_id);
         g.kills++;
         if (e.headshot) g.hs++;
         if (e.attacker_blind) g.blind++;
@@ -200,6 +210,7 @@ export default {
       return Object.values(grouped).map(g => ({
         map_name: g.map_id,
         map_display_name: getMapDisplayName(g.map_id, this.seasonMapNames),
+        played: g.mapStatIds.size,
         kills: g.kills,
         hs: g.hs,
         hsp: g.kills > 0 ? Math.round((g.hs / g.kills) * 100) : 0,
@@ -222,8 +233,18 @@ export default {
             blind: 0,
             smoke: 0,
             noscope: 0,
-            wallbang: 0
+            wallbang: 0,
+            killers: {}
           };
+        }
+        const killerKey = e.attacker_steam_id || e.attacker_name;
+        if (killerKey) {
+          const killers = map[w].killers;
+          if (!killers[killerKey]) {
+            killers[killerKey] = { name: e.attacker_name, kills: 0 };
+          }
+          killers[killerKey].kills++;
+          if (e.attacker_name) killers[killerKey].name = e.attacker_name;
         }
         map[w].kills++;
         if (e.headshot) map[w].hs++;
@@ -232,14 +253,27 @@ export default {
         if (e.no_scope) map[w].noscope++;
         if (e.penetrated) map[w].wallbang++;
       });
-      return Object.values(map).map(w => ({
-        ...w,
-        hsp: w.kills > 0 ? Math.round((w.hs / w.kills) * 100) : 0
-      }));
+      return Object.values(map).map(({ killers, ...w }) => {
+        const top = Object.values(killers).reduce(
+          (best, k) => (!best || k.kills > best.kills ? k : best),
+          null
+        );
+        return {
+          ...w,
+          top_killer: top ? top.name || "?" : "",
+          top_killer_kills: top ? top.kills : 0,
+          hsp: w.kills > 0 ? Math.round((w.hs / w.kills) * 100) : 0
+        };
+      });
     },
     mapHeaders() {
       return [
         { text: this.$t("GlobalStats.Map"), value: "map_name", sortable: true },
+        {
+          text: this.$t("GlobalStats.TimesPlayed"),
+          value: "played",
+          sortable: true
+        },
         { text: this.$t("PlayerStats.Kills"), value: "kills", sortable: true },
         {
           text: this.$t("PlayerStats.Headshot") + "%",
@@ -277,6 +311,11 @@ export default {
           sortable: true
         },
         { text: this.$t("PlayerStats.Kills"), value: "kills", sortable: true },
+        {
+          text: this.$t("GlobalStats.TopKiller"),
+          value: "top_killer",
+          sortable: true
+        },
         {
           text: this.$t("PlayerStats.Headshot") + "%",
           value: "hsp",
