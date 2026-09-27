@@ -143,7 +143,9 @@
       "BlindKills": "Blind Kills",
       "SmokeKills": "Smoke Kills",
       "NoScope": "No Scope",
-      "Wallbang": "Wallbang"
+      "Wallbang": "Wallbang",
+      "TimesPlayed": "Times Played",
+      "TopKiller": "Top Killer"
     },
     "Cast": {
       "Title": "Cast / Observer",
@@ -587,7 +589,9 @@
       "BlindKills": "Kills aveugle",
       "SmokeKills": "Kills à travers la fumée",
       "NoScope": "No Scope",
-      "Wallbang": "Wallbang"
+      "Wallbang": "Wallbang",
+      "TimesPlayed": "Fois jouée",
+      "TopKiller": "Meilleur tueur"
     },
     "Cast": {
       "Title": "Cast / Observateur",
@@ -1027,7 +1031,9 @@
       "BlindKills": "フラッシュキル",
       "SmokeKills": "スモークキル",
       "NoScope": "ノースコープ",
-      "Wallbang": "壁抜き"
+      "Wallbang": "壁抜き",
+      "TimesPlayed": "プレイ回数",
+      "TopKiller": "最多キル"
     },
     "PlayerStats": {
       "AllSeasons": "全シーズン",
